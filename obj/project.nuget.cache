@@ -1,24 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "a0pypI/qT+g=",
+  "dgSpecHash": "Cu0eO8lCgjc=",
   "success": true,
   "projectFilePath": "/home/daniel/Desktop/MouraTech/C#/module6/projeto/Biblioteca.Api/Biblioteca.Api.csproj",
   "expectedPackageFiles": [
     "/home/daniel/.nuget/packages/microsoft.aspnetcore.openapi/10.0.10/microsoft.aspnetcore.openapi.10.0.10.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512"
+    "/home/daniel/.nuget/packages/microsoft.extensions.apidescription.server/10.0.0/microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",
+    "/home/daniel/.nuget/packages/microsoft.openapi/2.7.5/microsoft.openapi.2.7.5.nupkg.sha512",
+    "/home/daniel/.nuget/packages/swashbuckle.aspnetcore/10.2.3/swashbuckle.aspnetcore.10.2.3.nupkg.sha512",
+    "/home/daniel/.nuget/packages/swashbuckle.aspnetcore.swagger/10.2.3/swashbuckle.aspnetcore.swagger.10.2.3.nupkg.sha512",
+    "/home/daniel/.nuget/packages/swashbuckle.aspnetcore.swaggergen/10.2.3/swashbuckle.aspnetcore.swaggergen.10.2.3.nupkg.sha512",
+    "/home/daniel/.nuget/packages/swashbuckle.aspnetcore.swaggerui/10.2.3/swashbuckle.aspnetcore.swaggerui.10.2.3.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1903",
-      "level": "Warning",
-      "message": "Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
-      "projectPath": "/home/daniel/Desktop/MouraTech/C#/module6/projeto/Biblioteca.Api/Biblioteca.Api.csproj",
-      "warningLevel": 1,
-      "filePath": "/home/daniel/Desktop/MouraTech/C#/module6/projeto/Biblioteca.Api/Biblioteca.Api.csproj",
-      "libraryId": "Microsoft.OpenApi",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    }
-  ]
+  "logs": []
 }
