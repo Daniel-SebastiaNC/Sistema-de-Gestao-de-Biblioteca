@@ -38,6 +38,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddScoped<IAlunoService, AlunoService>();
 builder.Services.AddScoped<IAutorService, AutorService>();
 builder.Services.AddScoped<ILivroService, LivroService>();
+builder.Services.AddScoped<IEmprestimoService, EmprestimoService>();
 
 var app = builder.Build();
 
