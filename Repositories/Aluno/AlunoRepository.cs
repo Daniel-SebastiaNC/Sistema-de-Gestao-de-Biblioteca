@@ -18,7 +18,7 @@ public class AlunoRepository : IAlunoRepository
         return aluno;
     }
 
-    public Aluno? GetAlunoById(int id)
+    public Aluno? GetAlunoById(Guid id)
     {
         return _contextDb.Alunos.FirstOrDefault(a => a.Id.Equals(id));
     }
@@ -39,5 +39,10 @@ public class AlunoRepository : IAlunoRepository
     {
         _contextDb.Remove(aluno);
         _contextDb.SaveChanges();
+    }
+
+    public bool ExistsAlunoByMatricula(string matricula)
+    {
+        return _contextDb.Alunos.FirstOrDefault(a => a.Matricula.Equals(matricula)) != null ? true : false;
     }
 }
