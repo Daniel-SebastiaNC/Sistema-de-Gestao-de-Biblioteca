@@ -35,6 +35,10 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddScoped<IAlunoService, AlunoService>();
+builder.Services.AddScoped<IAutorService, AutorService>();
+builder.Services.AddScoped<ILivroService, LivroService>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
