@@ -1,7 +1,9 @@
 using DataContext;
+using Handlers;
 using Mapper;
 using Microsoft.EntityFrameworkCore;
 using Repository;
+using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +32,12 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<LivroProfile>();
 });
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
+app.UseExceptionHandler();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
