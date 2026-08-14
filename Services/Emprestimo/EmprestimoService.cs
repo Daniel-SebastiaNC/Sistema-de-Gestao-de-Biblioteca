@@ -51,8 +51,9 @@ public class EmprestimoService : IEmprestimoService
         };
 
         var emprestimoCriado = _emprestimoRepository.AddEmprestimo(emprestimo);
+        var response = _mapper.Map<EmprestimoResponseDTO>(emprestimoCriado);
 
-        return _mapper.Map<EmprestimoResponseDTO>(emprestimoCriado);
+        return response;
     }
 
     public EmprestimoResponseDTO ReturnEmprestimo(Guid id)
