@@ -4,8 +4,7 @@ namespace Repository;
     public interface IEmprestimoRepository
     {
         Emprestimo AddEmprestimo(Emprestimo emprestimo);
-        Emprestimo? GetEmprestimoById(int id);
-        List<Emprestimo> GetAllEmprestimos();
+        Emprestimo? GetEmprestimoById(Guid id);
         Emprestimo UpdateEmprestimo(Emprestimo emprestimo);
-        void DeleteEmprestimo(Emprestimo emprestimo);
+        List<Emprestimo> GetAll();
     }

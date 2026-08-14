@@ -18,7 +18,7 @@ public class AutorRepository : IAutorRepository
         return autor;
     }
 
-    public Autor? GetAutorById(int id)
+    public Autor? GetAutorById(Guid id)
     {
         return _contextDb.Autores.FirstOrDefault(a => a.Id.Equals(id));
     }
