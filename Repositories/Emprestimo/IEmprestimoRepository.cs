@@ -7,4 +7,5 @@ namespace Repository;
         Emprestimo? GetEmprestimoById(Guid id);
         Emprestimo UpdateEmprestimo(Emprestimo emprestimo);
         List<Emprestimo> GetAll();
+        bool ExistsEmpresitimoAtivo(Guid idAluno, Guid idLivro);
     }

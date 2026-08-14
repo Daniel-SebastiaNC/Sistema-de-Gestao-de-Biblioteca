@@ -2,13 +2,14 @@ using AutoMapper;
 using DTO;
 using Repository;
 using Models;
+using Exceptions;
 
 namespace Services;
 
 public class EmprestimoService : IEmprestimoService
 {
     private readonly IEmprestimoRepository _emprestimoRepository;
-    private readonly ILivroRepository _livroRepository; // Precisamos para gerenciar o estoque
+    private readonly ILivroRepository _livroRepository;
     private readonly IMapper _mapper;
 
     public EmprestimoService(
@@ -23,19 +24,22 @@ public class EmprestimoService : IEmprestimoService
 
     public EmprestimoResponseDTO AddEmprestimo(CriarEmprestimoDTO dto)
     {
-        // 1. Busca o livro para validar o estoque
         var livro = _livroRepository.GetLivroById(dto.IdLivro);
+
+        if (_emprestimoRepository.ExistsEmpresitimoAtivo(dto.IdAluno, dto.IdLivro))
+        {
+            throw new ConflictException("O aluno já possui um empréstimo ativo deste mesmo livro.");
+        }
         
         if (livro == null) 
-            throw new Exception("Livro não encontrado.");
+            throw new ConflictException("Livro não encontrado.");
             
         if (livro.Quantidade <= 0) 
-            throw new Exception("Livro indisponível no estoque.");
+            throw new ConflictException("Livro indisponível no estoque.");
 
         livro.Quantidade -= 1;
         _livroRepository.UpdateLivro(livro);
 
-        // 3. Cria o empréstimo
         var emprestimo = new Emprestimo
         {
             Id = Guid.NewGuid(),
@@ -56,10 +60,10 @@ public class EmprestimoService : IEmprestimoService
         var emprestimo = _emprestimoRepository.GetEmprestimoById(id);
         
         if (emprestimo == null) 
-            throw new Exception("Empréstimo não encontrado.");
+            throw new NotFoundException("Empréstimo não encontrado.");
             
         if (emprestimo.Status == StatusEmprestimo.Devolvido) 
-            throw new Exception("Este empréstimo já foi devolvido.");
+            throw new ConflictException("Este empréstimo já foi devolvido.");
 
         emprestimo.DataDevolucao = DateTime.Now;
         emprestimo.Status = StatusEmprestimo.Devolvido;

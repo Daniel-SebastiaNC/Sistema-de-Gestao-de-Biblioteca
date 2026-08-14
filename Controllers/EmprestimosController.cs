@@ -15,7 +15,6 @@ namespace Controllers
             _emprestimoService = emprestimoService;
         }
 
-        // POST /api/emprestimos
         [HttpPost]
         public IActionResult AddEmprestimo([FromBody] CriarEmprestimoDTO dto)
         {
@@ -36,7 +35,6 @@ namespace Controllers
             }
         }
 
-        // PUT /api/emprestimos/{id}/devolucao
         [HttpPut("{id}/devolucao")]
         public IActionResult ReturnEmprestimo(Guid id)
         {

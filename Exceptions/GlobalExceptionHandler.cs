@@ -15,6 +15,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         {
             NotFoundException => (StatusCodes.Status404NotFound, "Recurso não encontrado"),
             BadRequestException => (StatusCodes.Status400BadRequest, "Requisição Inválida"),
+            ConflictException => (StatusCodes.Status409Conflict, "Conflito no Sistema"),
             _ => (StatusCodes.Status500InternalServerError, "Erro interno no servidor")
         };
 

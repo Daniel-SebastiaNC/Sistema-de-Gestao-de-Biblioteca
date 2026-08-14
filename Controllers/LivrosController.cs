@@ -5,7 +5,7 @@ using Services;
 namespace Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] // A rota será /api/livros
+    [Route("api/[controller]")] 
     public class LivrosController : ControllerBase
     {
         private readonly ILivroService _livroService;
@@ -15,7 +15,6 @@ namespace Controllers
             _livroService = livroService;
         }
 
-        // POST /api/livros
         [HttpPost]
         public IActionResult CriarLivro([FromBody] CriarLivroDto dto)
         {
