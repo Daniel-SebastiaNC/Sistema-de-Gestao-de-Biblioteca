@@ -1,6 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace DTO;
 public record CriarAutorDto(
-        string Nome,  
-        DateTime DataNascimento,
-        string Nacionalidade
-    );
+    [NotNull]
+    string Nome,
+
+    [NotNull]  
+    DateTime DataNascimento,
+
+    [NotNull]
+    string Nacionalidade
+);

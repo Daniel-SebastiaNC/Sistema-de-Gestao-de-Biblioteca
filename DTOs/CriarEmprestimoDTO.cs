@@ -1,6 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace DTO;
 
 public record CriarEmprestimoDTO(
-        Guid IdAluno,
-        Guid IdLivro
-    );
+    [NotNull]
+    Guid IdAluno,
+    
+    [NotNull]
+    Guid IdLivro
+);

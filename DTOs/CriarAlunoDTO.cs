@@ -1,10 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DTO;
 
 public record CriarAlunoDTO(
-        string Nome,
-        string Matricula,
-        [EmailAddress]
-        string Email
-    );
+    [NotNull]
+    string Nome,
+
+    [NotNull]
+    string Matricula,
+    
+    [EmailAddress]
+    string Email
+);
