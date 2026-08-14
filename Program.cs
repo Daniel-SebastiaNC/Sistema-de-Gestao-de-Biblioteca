@@ -1,4 +1,5 @@
 using DataContext;
+using Mapper;
 using Microsoft.EntityFrameworkCore;
 using Repository;
 
@@ -20,6 +21,14 @@ builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
 builder.Services.AddScoped<IAutorRepository, AutorRepository>();
 builder.Services.AddScoped<ILivroRepository, LivroRepository>();
 builder.Services.AddScoped<IEmprestimoRepository, EmprestimoRepository>();
+
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<AlunoProfile>();
+    cfg.AddProfile<EmprestimoProfile>();
+    cfg.AddProfile<AutorProfile>();
+    cfg.AddProfile<LivroProfile>();
+});
 
 var app = builder.Build();
 
