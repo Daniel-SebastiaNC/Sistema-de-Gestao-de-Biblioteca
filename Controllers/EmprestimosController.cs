@@ -22,32 +22,17 @@ namespace Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            try
-            {
-                var emprestimo = _emprestimoService.AddEmprestimo(dto);
-                return Created($"/api/emprestimos/{emprestimo.Id}", emprestimo);
-            }
-            catch (Exception ex)
-            {
-                // Se faltar estoque ou livro não existir, o throw do Service cai aqui
-                return BadRequest(new { mensagem = ex.Message });
-            }
+            var emprestimo = _emprestimoService.AddEmprestimo(dto);
+            return Created($"/api/emprestimos/{emprestimo.Id}", emprestimo);
+            
         }
 
         [HttpPut("{id}/devolucao")]
         public IActionResult ReturnEmprestimo(Guid id)
         {
-            try
-            {
-                var emprestimoAtualizado = _emprestimoService.ReturnEmprestimo(id);
-                return Ok(emprestimoAtualizado);
-            }
-            catch (Exception ex)
-            {
-                // Se o empréstimo não for encontrado ou já estiver devolvido, cai aqui
-                return BadRequest(new { mensagem = ex.Message });
-            }
+            var emprestimoAtualizado = _emprestimoService.ReturnEmprestimo(id);
+            return Ok(emprestimoAtualizado);
+            
         }
 
         [HttpGet("api/[controller]/all")]
