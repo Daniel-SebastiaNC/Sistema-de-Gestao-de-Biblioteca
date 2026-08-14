@@ -16,12 +16,8 @@ namespace Controllers
         }
 
         [HttpPost]
-        public IActionResult CriarLivro([FromBody] CriarLivroDto dto)
+        public IActionResult CriarLivro(CriarLivroDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             var livroCriado = _livroService.AddLivro(dto);
 

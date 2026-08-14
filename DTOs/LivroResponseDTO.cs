@@ -1,10 +1,11 @@
 namespace DTO;
 
-public record LivroResponseDTO(
-        Guid Id,
-        string ISBN,
-        string Titulo,
-        int AnoPublicacao,
-        AutorResponseDto Autor,
-        int QuantidadeDisponivel
-    );
+public class LivroResponseDTO
+{
+    public Guid Id { get; set; }
+    public string ISBN { get; set; }
+    public string Titulo { get; set; }
+    public int AnoPublicacao { get; set; }
+    public AutorResponseDto Autor { get; set; }
+    public int Quantidade { get; set; }
+}
