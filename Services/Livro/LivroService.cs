@@ -21,34 +21,13 @@ namespace Services
 
         public LivroResponseDTO AddLivro(CriarLivroDto dto)
         {
-            var autor = _autorRepository.GetAutorById(dto.IdAutor) ?? throw new NotFoundException($"Autor com Id {dto.IdAutor} não encontrado");
-            var livro = new Livro();
-            livro.AnoPublicacao = dto.AnoPublicacao;
-            livro.ISBN = dto.ISBN;
-            livro.Quantidade = dto.QuantidadeDisponivel;
-            livro.Titulo = dto.Titulo;
-            livro.Autor = autor;
-            livro.AutorId = dto.IdAutor;
-            livro = _repositopry.AddLivro(livro);
-
-            var response = new LivroResponseDTO();
-
-            response.Id = livro.Id;
-            response.ISBN = livro.ISBN;
-            response.Titulo = livro.Titulo;
-            response.AnoPublicacao = livro.AnoPublicacao;
-
-            var responseAutor = new AutorResponseDto(
-                autor.Id,
-                autor.Nome,
-                autor.DataNascimento,
-                autor.Nacionalidade
-            );
-
-            response.Autor =  responseAutor;
-            response.Quantidade = livro.Quantidade;
+            var autor = _autorRepository.GetAutorById(dto.AutorId) ?? throw new NotFoundException($"Autor com Id {dto.AutorId} não encontrado");
+            var livro = _mapper.Map<Livro>(dto);
             
-            return response;
+            livro.Autor = autor;
+
+            livro = _repositopry.AddLivro(livro);
+            return _mapper.Map<LivroResponseDTO>(livro);
         }
 
         public List<LivroResponseDTO> GetLivrosByAutorOrTitle(string? titulo, string? autor)

@@ -12,7 +12,7 @@ public record CriarLivroDto(
     int AnoPublicacao,
 
     [NotNull]
-    Guid IdAutor,
+    Guid AutorId,
 
     [NotNull]
     int QuantidadeDisponivel

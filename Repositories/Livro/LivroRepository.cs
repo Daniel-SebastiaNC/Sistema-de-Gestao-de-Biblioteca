@@ -22,12 +22,16 @@ public class LivroRepository : ILivroRepository
 
     public Livro? GetLivroById(Guid id)
     {
-        return _contextDb.Livros.FirstOrDefault(l => l.Id.Equals(id));
+        return _contextDb.Livros
+        .Include(l => l.Autor)
+        .FirstOrDefault(l => l.Id.Equals(id));
     }
 
     public List<Livro> GetAllLivros()
     {
-        return _contextDb.Livros.ToList();
+        return _contextDb.Livros
+        .Include(l => l.Autor)
+        .ToList();
     }
 
     public Livro UpdateLivro(Livro livro)
