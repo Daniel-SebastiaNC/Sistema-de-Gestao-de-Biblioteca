@@ -5,5 +5,5 @@ public record AlunoResponseDTO(
     string Nome,
     string Matricula,
     string Email,
-    List<EmprestimoResponseDTO> Emprestimos
+    List<EmprestimoResumoDTO> Emprestimos
 );

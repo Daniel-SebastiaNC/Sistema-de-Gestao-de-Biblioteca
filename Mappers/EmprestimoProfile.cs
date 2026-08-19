@@ -11,5 +11,7 @@ public class EmprestimoProfile : Profile
         CreateMap<CriarEmprestimoDTO, Emprestimo>();
 
         CreateMap<Emprestimo, EmprestimoResponseDTO>();
+
+        CreateMap<Emprestimo, EmprestimoResumoDTO>();
     }
 }

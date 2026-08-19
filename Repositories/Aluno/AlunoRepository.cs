@@ -1,5 +1,6 @@
 using Models;
 using DataContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository;
 public class AlunoRepository : IAlunoRepository
@@ -20,12 +21,20 @@ public class AlunoRepository : IAlunoRepository
 
     public Aluno? GetAlunoById(Guid id)
     {
-        return _contextDb.Alunos.FirstOrDefault(a => a.Id.Equals(id));
+        return _contextDb.Alunos
+        .Include(a => a.Emprestimos)
+            .ThenInclude(e => e.Livro)
+                .ThenInclude(l => l.Autor)
+        .FirstOrDefault(a => a.Id.Equals(id));
     }
 
     public List<Aluno> GetAllAlunos()
     {
-        return _contextDb.Alunos.ToList();
+        return _contextDb.Alunos
+        .Include(a => a.Emprestimos)
+            .ThenInclude(e => e.Livro)
+                .ThenInclude(l => l.Autor)
+        .ToList();
     }
 
     public Aluno UpdateAluno(Aluno aluno)
