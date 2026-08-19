@@ -5,10 +5,10 @@ namespace DTO;
 public record EmprestimoResponseDTO(
     Guid Id,
     LivroResponseDTO Livro,
-    AlunoResponseDTO Aluno,
+    AlunoResumoDTO Aluno,
     DateTime DataEmprestimo,
     DateTime DataPrevistaDevolucao,
-    DateTime DataDevolucao,
+    DateTime? DataDevolucao,
     StatusEmprestimo Status
 );
 

@@ -11,5 +11,7 @@ public class AlunoProfile : Profile
         CreateMap<CriarAlunoDTO, Aluno>();
 
         CreateMap<Aluno, AlunoResponseDTO>();
+
+        CreateMap<Aluno, AlunoResumoDTO>();
     }
 }

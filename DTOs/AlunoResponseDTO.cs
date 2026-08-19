@@ -7,3 +7,10 @@ public record AlunoResponseDTO(
     string Email,
     List<EmprestimoResumoDTO> Emprestimos
 );
+
+public record AlunoResumoDTO(
+    Guid Id,
+    string Nome,
+    string Matricula,
+    string Email
+);

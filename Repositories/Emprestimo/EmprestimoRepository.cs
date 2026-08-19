@@ -22,8 +22,10 @@ public class EmprestimoRepository : IEmprestimoRepository
     public Emprestimo? GetEmprestimoById(Guid id)
     {
         return _contextDb.Emprestimos
-                        .Include(e => e.Livro) 
-                        .FirstOrDefault(e => e.Id.Equals(id));
+            .Include(e => e.Aluno)
+            .Include(e => e.Livro)
+                .ThenInclude(l => l.Autor) 
+            .FirstOrDefault(e => e.Id.Equals(id));
     }
 
     public Emprestimo UpdateEmprestimo(Emprestimo emprestimo)
@@ -35,7 +37,11 @@ public class EmprestimoRepository : IEmprestimoRepository
 
     public List<Emprestimo> GetAll()
     {
-        return _contextDb.Emprestimos.ToList();
+        return _contextDb.Emprestimos
+            .Include(e => e.Aluno)
+            .Include(e => e.Livro)
+                .ThenInclude(l => l.Autor) 
+            .ToList();
     }
 
     public bool ExistsEmpresitimoAtivo(Guid idAluno, Guid idLivro)
