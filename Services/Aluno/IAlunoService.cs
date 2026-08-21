@@ -3,8 +3,8 @@ using DTO;
 namespace Services;
 public interface IAlunoService
 {
-    AlunoResponseDTO AddAluno(CriarAlunoDTO dto);
-    AlunoResponseDTO GetAlunoById(Guid id);
-    List<AlunoResponseDTO> GetAllAlunos();
-    void DeleteAluno(Guid id);
+    Task<AlunoResponseDTO> AddAlunoAsync(CriarAlunoDTO dto);
+    Task<AlunoResponseDTO> GetAlunoByIdAsync(Guid id);
+    Task<List<AlunoResponseDTO>> GetAllAlunosAsync();
+    Task DeleteAlunoAsync(Guid id);
 }

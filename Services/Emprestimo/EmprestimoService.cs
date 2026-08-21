@@ -22,11 +22,11 @@ public class EmprestimoService : IEmprestimoService
         _mapper = mapper;
     }
 
-    public EmprestimoResponseDTO AddEmprestimo(CriarEmprestimoDTO dto)
+    public async Task<EmprestimoResponseDTO> AddEmprestimoAsync(CriarEmprestimoDTO dto)
     {
-        var livro = _livroRepository.GetLivroById(dto.IdLivro);
+        var livro = await _livroRepository.GetLivroByIdAsync(dto.IdLivro);
 
-        if (_emprestimoRepository.ExistsEmpresitimoAtivo(dto.IdAluno, dto.IdLivro))
+        if (await _emprestimoRepository.ExistsEmpresitimoAtivoAsync(dto.IdAluno, dto.IdLivro))
         {
             throw new ConflictException("O aluno já possui um empréstimo ativo deste mesmo livro.");
         }
@@ -38,7 +38,7 @@ public class EmprestimoService : IEmprestimoService
             throw new ConflictException("Livro indisponível no estoque.");
 
         livro.Quantidade -= 1;
-        _livroRepository.UpdateLivro(livro);
+        await _livroRepository.UpdateLivroAsync(livro);
 
         var emprestimo = new Emprestimo
         {
@@ -50,15 +50,15 @@ public class EmprestimoService : IEmprestimoService
             Status = StatusEmprestimo.Ativo
         };
 
-        var emprestimoCriado = _emprestimoRepository.AddEmprestimo(emprestimo);
+        var emprestimoCriado = await _emprestimoRepository.AddEmprestimoAsync(emprestimo);
         var response = _mapper.Map<EmprestimoResponseDTO>(emprestimoCriado);
 
         return response;
     }
 
-    public EmprestimoResponseDTO ReturnEmprestimo(Guid id)
+    public async Task<EmprestimoResponseDTO> ReturnEmprestimoAsync(Guid id)
     {
-        var emprestimo = _emprestimoRepository.GetEmprestimoById(id);
+        var emprestimo = await _emprestimoRepository.GetEmprestimoByIdAsync(id);
         
         if (emprestimo == null) 
             throw new NotFoundException("Empréstimo não encontrado.");
@@ -74,13 +74,14 @@ public class EmprestimoService : IEmprestimoService
             emprestimo.Livro.Quantidade += 1;
         }
 
-        _emprestimoRepository.UpdateEmprestimo(emprestimo);
+        await _emprestimoRepository.UpdateEmprestimoAsync(emprestimo);
 
         return _mapper.Map<EmprestimoResponseDTO>(emprestimo);
     }
 
-    public List<EmprestimoResponseDTO> GetAll()
+    public async Task<List<EmprestimoResponseDTO>> GetAllAsync()
     {
-        return _mapper.Map<List<EmprestimoResponseDTO>>(_emprestimoRepository.GetAll());
+        var emprestimos = await _emprestimoRepository.GetAllAsync();
+        return _mapper.Map<List<EmprestimoResponseDTO>>(emprestimos);
     }
 }

@@ -17,39 +17,39 @@ public class AlunoService : IAlunoService
         _mapper = mapper;
     }
 
-    public AlunoResponseDTO AddAluno(CriarAlunoDTO dto)
+    public async Task<AlunoResponseDTO> AddAlunoAsync(CriarAlunoDTO dto)
     {
-        bool isExists = _repository.ExistsAlunoByMatricula(dto.Matricula);
+        bool isExists = await _repository.ExistsAlunoByMatriculaAsync(dto.Matricula);
 
         if (isExists)
         {
             throw new BadRequestException($"Já existe um Aluno com Matrícula {dto.Matricula}");
         }
 
-        Aluno aluno = _repository.AddAluno(
+        Aluno aluno = await _repository.AddAlunoAsync(
             _mapper.Map<Aluno>(dto)
         );
 
         return _mapper.Map<AlunoResponseDTO>(aluno);
     }
 
-    public void DeleteAluno(Guid id)
+    public async Task DeleteAlunoAsync(Guid id)
     {
-        Aluno aluno = _repository.GetAlunoById(id) ?? throw new NotFoundException($"Aluno com id {id} não encontrado.");
+        Aluno aluno = await _repository.GetAlunoByIdAsync(id) ?? throw new NotFoundException($"Aluno com id {id} não encontrado.");
 
-        _repository.DeleteAluno(aluno);
+        await _repository.DeleteAlunoAsync(aluno);
     }
 
-    public List<AlunoResponseDTO> GetAllAlunos()
+    public async Task<List<AlunoResponseDTO>> GetAllAlunosAsync()
     {
-        List<Aluno> alunos = _repository.GetAllAlunos();
+        List<Aluno> alunos = await _repository.GetAllAlunosAsync();
 
         return _mapper.Map<List<AlunoResponseDTO>>(alunos);
     }
 
-    public AlunoResponseDTO GetAlunoById(Guid id)
+    public async Task<AlunoResponseDTO> GetAlunoByIdAsync(Guid id)
     {
-        Aluno aluno = _repository.GetAlunoById(id) ?? throw new NotFoundException($"Aluno com id {id} não encontrado.");
+        Aluno aluno = await _repository.GetAlunoByIdAsync(id) ?? throw new NotFoundException($"Aluno com id {id} não encontrado.");
 
         return _mapper.Map<AlunoResponseDTO>(aluno);
     }

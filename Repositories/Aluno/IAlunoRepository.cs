@@ -3,11 +3,12 @@ using Models;
 namespace Repository;    
 public interface IAlunoRepository
 {
-    Aluno AddAluno(Aluno aluno);
-    Aluno? GetAlunoById(Guid id);
-    List<Aluno> GetAllAlunos();
-    Aluno UpdateAluno(Aluno aluno);
-    void DeleteAluno(Aluno aluno);
+    Task<Aluno> AddAlunoAsync(Aluno aluno);
+    Task<Aluno?> GetAlunoByIdAsync(Guid id);
+    Task<List<Aluno>> GetAllAlunosAsync();
+    Task<Aluno> UpdateAlunoAsync(Aluno aluno);
+    Task DeleteAlunoAsync(Aluno aluno);
 
-    bool ExistsAlunoByMatricula(string matricula);
+    Task<bool> ExistsAlunoByMatriculaAsync(string matricula);
 }
+

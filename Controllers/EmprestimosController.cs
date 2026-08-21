@@ -16,29 +16,30 @@ namespace Controllers
         }
 
         [HttpPost]
-        public IActionResult AddEmprestimo([FromBody] CriarEmprestimoDTO dto)
+        public async Task<IActionResult> AddEmprestimo([FromBody] CriarEmprestimoDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var emprestimo = _emprestimoService.AddEmprestimo(dto);
+            var emprestimo = await _emprestimoService.AddEmprestimoAsync(dto);
             return Created($"/api/emprestimos/{emprestimo.Id}", emprestimo);
             
         }
 
         [HttpPut("{id}/devolucao")]
-        public IActionResult ReturnEmprestimo(Guid id)
+        public async Task<IActionResult> ReturnEmprestimo(Guid id)
         {
-            var emprestimoAtualizado = _emprestimoService.ReturnEmprestimo(id);
+            var emprestimoAtualizado = await _emprestimoService.ReturnEmprestimoAsync(id);
             return Ok(emprestimoAtualizado);
             
         }
 
         [HttpGet("api/[controller]/all")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_emprestimoService.GetAll());
+            var emprestimos = await _emprestimoService.GetAllAsync();
+            return Ok(emprestimos);
         }
     }
 }

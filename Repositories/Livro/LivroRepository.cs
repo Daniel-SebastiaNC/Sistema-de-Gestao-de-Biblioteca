@@ -13,41 +13,41 @@ public class LivroRepository : ILivroRepository
         _contextDb = contextDb;
     }
 
-    public Livro AddLivro(Livro livro)
+    public async Task<Livro> AddLivroAsync(Livro livro)
     {
-        _contextDb.Add(livro);
-        _contextDb.SaveChanges();
+        await _contextDb.AddAsync(livro);
+        await _contextDb.SaveChangesAsync();
         return livro;
     }
 
-    public Livro? GetLivroById(Guid id)
+    public async Task<Livro?> GetLivroByIdAsync(Guid id)
     {
-        return _contextDb.Livros
+        return await _contextDb.Livros
         .Include(l => l.Autor)
-        .FirstOrDefault(l => l.Id.Equals(id));
+        .FirstOrDefaultAsync(l => l.Id.Equals(id));
     }
 
-    public List<Livro> GetAllLivros()
+    public async Task<List<Livro>> GetAllLivrosAsync()
     {
-        return _contextDb.Livros
+        return await _contextDb.Livros
         .Include(l => l.Autor)
-        .ToList();
+        .ToListAsync();
     }
 
-    public Livro UpdateLivro(Livro livro)
+    public async Task<Livro> UpdateLivroAsync(Livro livro)
     {
         _contextDb.Update(livro);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
         return livro;
     }
 
-    public void DeleteLivro(Livro livro)
+    public async Task DeleteLivroAsync(Livro livro)
     {
         _contextDb.Remove(livro);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
     }
 
-    public List<Livro> GetLivrosByAutorOrTitle(string? titulo, string? autor)
+    public async Task<List<Livro>> GetLivrosByAutorOrTitleAsync(string? titulo, string? autor)
     {
         IQueryable<Livro> query = _contextDb.Livros.Include(l => l.Autor);
 
@@ -61,6 +61,6 @@ public class LivroRepository : ILivroRepository
             query = query.Where(l => l.Autor != null && l.Autor.Nome.Contains(autor));
         }
 
-        return query.ToList();
+        return await query.ToListAsync();
     }
 }

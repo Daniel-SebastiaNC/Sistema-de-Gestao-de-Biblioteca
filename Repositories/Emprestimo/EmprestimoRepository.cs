@@ -12,41 +12,41 @@ public class EmprestimoRepository : IEmprestimoRepository
         _contextDb = contextDb;
     }
 
-    public Emprestimo AddEmprestimo(Emprestimo emprestimo)
+    public async Task<Emprestimo> AddEmprestimoAsync(Emprestimo emprestimo)
     {
-        _contextDb.Add(emprestimo);
-        _contextDb.SaveChanges();
+        await _contextDb.AddAsync(emprestimo);
+        await _contextDb.SaveChangesAsync();
         return emprestimo;
     }
 
-    public Emprestimo? GetEmprestimoById(Guid id)
+    public async Task<Emprestimo?> GetEmprestimoByIdAsync(Guid id)
     {
-        return _contextDb.Emprestimos
+        return await _contextDb.Emprestimos
             .Include(e => e.Aluno)
             .Include(e => e.Livro)
                 .ThenInclude(l => l.Autor) 
-            .FirstOrDefault(e => e.Id.Equals(id));
+            .FirstOrDefaultAsync(e => e.Id.Equals(id));
     }
 
-    public Emprestimo UpdateEmprestimo(Emprestimo emprestimo)
+    public async Task<Emprestimo> UpdateEmprestimoAsync(Emprestimo emprestimo)
     {
         _contextDb.Update(emprestimo);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
         return emprestimo;
     }
 
-    public List<Emprestimo> GetAll()
+    public async Task<List<Emprestimo>> GetAllAsync()
     {
-        return _contextDb.Emprestimos
+        return await _contextDb.Emprestimos
             .Include(e => e.Aluno)
             .Include(e => e.Livro)
                 .ThenInclude(l => l.Autor) 
-            .ToList();
+            .ToListAsync();
     }
 
-    public bool ExistsEmpresitimoAtivo(Guid idAluno, Guid idLivro)
+    public async Task<bool> ExistsEmpresitimoAtivoAsync(Guid idAluno, Guid idLivro)
     {
-        return _contextDb.Emprestimos.Any(e => 
+        return await _contextDb.Emprestimos.AnyAsync(e => 
         e.AlunoId == idAluno && 
         e.LivroId == idLivro && 
         e.Status == StatusEmprestimo.Ativo);

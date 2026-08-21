@@ -3,9 +3,9 @@ using Models;
 namespace Repository;
     public interface IAutorRepository
     {
-        Autor AddAutor(Autor autor);
-        Autor? GetAutorById(Guid id);
-        List<Autor> GetAllAutores();
-        Autor UpdateAutor(Autor autor);
-        void DeleteAutor(Autor autor);
+        Task<Autor> AddAutorAsync(Autor autor);
+        Task<Autor?> GetAutorByIdAsync(Guid id);
+        Task<List<Autor>> GetAllAutoresAsync();
+        Task<Autor> UpdateAutorAsync(Autor autor);
+        Task DeleteAutorAsync(Autor autor);
     }

@@ -3,9 +3,10 @@ namespace Services;
 
 public interface ILivroService
 {
-    LivroResponseDTO AddLivro(CriarLivroDto dto);
-    List<LivroResponseDTO> GetLivrosByAutorOrTitle(string? titulo, string? autor);
-    LivroResponseDTO GetLivrosById(Guid id);
+    Task<LivroResponseDTO> AddLivroAsync(CriarLivroDto dto);
+    Task<List<LivroResponseDTO>> GetLivrosByAutorOrTitleAsync(string? titulo, string? autor);
+    Task<LivroResponseDTO> GetLivrosByIdAsync(Guid id);
 
-    List<LivroResponseDTO> GetAll();
+    Task<List<LivroResponseDTO>> GetAllAsync();
 }
+

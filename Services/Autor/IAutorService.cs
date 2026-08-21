@@ -4,9 +4,9 @@ namespace Services;
 
 public interface IAutorService
 {
-    AutorResponseDto AddAutor(CriarAutorDto dto);
-    AutorResponseDto GetAutorById(Guid id);
-    List<AutorResponseDto> GetAllAutores();
-    AutorResponseDto UpdateAutor(Guid id, CriarAutorDto dto);
-    void DeleteAutor(Guid id);
+    Task<AutorResponseDto> AddAutorAsync(CriarAutorDto dto);
+    Task<AutorResponseDto> GetAutorByIdAsync(Guid id);
+    Task<List<AutorResponseDto>> GetAllAutoresAsync();
+    Task<AutorResponseDto> UpdateAutorAsync(Guid id, CriarAutorDto dto);
+    Task DeleteAutorAsync(Guid id);
 }

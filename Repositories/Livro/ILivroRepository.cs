@@ -3,11 +3,12 @@ using Models;
 namespace Repository;
     public interface ILivroRepository
     {
-        Livro AddLivro(Livro livro);
-        Livro? GetLivroById(Guid id);
-        List<Livro> GetAllLivros();
-        Livro UpdateLivro(Livro livro);
-        void DeleteLivro(Livro livro);
+        Task<Livro> AddLivroAsync(Livro livro);
+        Task<Livro?> GetLivroByIdAsync(Guid id);
+        Task<List<Livro>> GetAllLivrosAsync();
+        Task<Livro> UpdateLivroAsync(Livro livro);
+        Task DeleteLivroAsync(Livro livro);
 
-        public List<Livro> GetLivrosByAutorOrTitle(string? titulo, string? autor);
+        Task<List<Livro>> GetLivrosByAutorOrTitleAsync(string? titulo, string? autor);
     }
+

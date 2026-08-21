@@ -1,12 +1,10 @@
 using DTO;
-using Repository;
-using AutoMapper;
 
 namespace Services;
     public interface IEmprestimoService
     {
-        EmprestimoResponseDTO AddEmprestimo(CriarEmprestimoDTO dto);
-        EmprestimoResponseDTO ReturnEmprestimo(Guid id);
+        Task<EmprestimoResponseDTO> AddEmprestimoAsync(CriarEmprestimoDTO dto);
+        Task<EmprestimoResponseDTO> ReturnEmprestimoAsync(Guid id);
 
-        List<EmprestimoResponseDTO> GetAll();
+        Task<List<EmprestimoResponseDTO>> GetAllAsync();
     }

@@ -12,46 +12,46 @@ public class AlunoRepository : IAlunoRepository
         _contextDb = contextDb;
     }
 
-    public Aluno AddAluno(Aluno aluno)
+    public async Task<Aluno> AddAlunoAsync(Aluno aluno)
     {
-        _contextDb.Add(aluno);
-        _contextDb.SaveChanges();
+        await _contextDb.AddAsync(aluno);
+        await _contextDb.SaveChangesAsync();
         return aluno;
     }
 
-    public Aluno? GetAlunoById(Guid id)
+    public async Task<Aluno?> GetAlunoByIdAsync(Guid id)
     {
-        return _contextDb.Alunos
+        return await _contextDb.Alunos
         .Include(a => a.Emprestimos)
             .ThenInclude(e => e.Livro)
                 .ThenInclude(l => l.Autor)
-        .FirstOrDefault(a => a.Id.Equals(id));
+        .FirstOrDefaultAsync(a => a.Id.Equals(id));
     }
 
-    public List<Aluno> GetAllAlunos()
+    public async Task<List<Aluno>> GetAllAlunosAsync()
     {
-        return _contextDb.Alunos
+        return await _contextDb.Alunos
         .Include(a => a.Emprestimos)
             .ThenInclude(e => e.Livro)
                 .ThenInclude(l => l.Autor)
-        .ToList();
+        .ToListAsync();
     }
 
-    public Aluno UpdateAluno(Aluno aluno)
+    public async Task<Aluno> UpdateAlunoAsync(Aluno aluno)
     {
         _contextDb.Update(aluno);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
         return aluno;
     }
 
-    public void DeleteAluno(Aluno aluno)
+    public async Task DeleteAlunoAsync(Aluno aluno)
     {
         _contextDb.Remove(aluno);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
     }
 
-    public bool ExistsAlunoByMatricula(string matricula)
+    public async Task<bool> ExistsAlunoByMatriculaAsync(string matricula)
     {
-        return _contextDb.Alunos.FirstOrDefault(a => a.Matricula.Equals(matricula)) != null ? true : false;
+        return await _contextDb.Alunos.AnyAsync(a => a.Matricula == matricula);
     }
 }

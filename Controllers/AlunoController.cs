@@ -16,32 +16,32 @@ public class AlunoController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<List<AlunoResponseDTO>> GetAllAlunos()
+    public async Task<ActionResult<List<AlunoResponseDTO>>> GetAllAlunos()
     {
-        var alunos = _service.GetAllAlunos();
+        var alunos = await _service.GetAllAlunosAsync();
         return Ok(alunos);
     }
 
      [HttpGet("{id}")]
-    public ActionResult<AlunoResponseDTO> GetAlunoById(Guid id)
+    public async Task<ActionResult<AlunoResponseDTO>> GetAlunoById(Guid id)
     {
-        var aluno = _service.GetAlunoById(id);
+        var aluno = await _service.GetAlunoByIdAsync(id);
         return Ok(aluno);
     }
 
     [HttpPost]
-    public ActionResult<AlunoResponseDTO> AddAluno(CriarAlunoDTO dto)
+    public async Task<ActionResult<AlunoResponseDTO>> AddAluno(CriarAlunoDTO dto)
     {
-        var aluno = _service.AddAluno(dto);
+        var aluno = await _service.AddAlunoAsync(dto);
         return CreatedAtAction(nameof(GetAlunoById), new {id = aluno.Id}, aluno);
     }
 
 
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteAluno(Guid id)
+    public async Task<IActionResult> DeleteAluno(Guid id)
     {
-        _service.DeleteAluno(id);
+        await _service.DeleteAlunoAsync(id);
         return NoContent();
     }
 }

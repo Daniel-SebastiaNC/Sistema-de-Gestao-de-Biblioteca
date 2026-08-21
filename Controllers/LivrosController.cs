@@ -16,34 +16,34 @@ namespace Controllers
         }
 
         [HttpPost]
-        public IActionResult CriarLivro(CriarLivroDto dto)
+        public async Task<IActionResult> CriarLivro(CriarLivroDto dto)
         {
 
-            var livroCriado = _livroService.AddLivro(dto);
+            var livroCriado = await _livroService.AddLivroAsync(dto);
 
             return CreatedAtAction(nameof(GetLivroById), new {id = livroCriado.Id},livroCriado);
         }
 
         [HttpGet]
-        public IActionResult ObterLivros([FromQuery] string? titulo, [FromQuery] string? autor)
+        public async Task<IActionResult> ObterLivros([FromQuery] string? titulo, [FromQuery] string? autor)
         {
-            var livros = _livroService.GetLivrosByAutorOrTitle(titulo, autor);
+            var livros = await _livroService.GetLivrosByAutorOrTitleAsync(titulo, autor);
             
             return Ok(livros);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetLivroById(Guid id)
+        public async Task<IActionResult> GetLivroById(Guid id)
         {
-            var livros = _livroService.GetLivrosById(id);
+            var livros = await _livroService.GetLivrosByIdAsync(id);
             
             return Ok(livros);
         }
 
         [HttpGet("api/[controller]/all")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            List<LivroResponseDTO> livros = _livroService.GetAll();
+            List<LivroResponseDTO> livros = await _livroService.GetAllAsync();
             
             return Ok(livros);
         }

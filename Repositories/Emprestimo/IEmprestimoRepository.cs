@@ -3,9 +3,9 @@ using Models;
 namespace Repository;
     public interface IEmprestimoRepository
     {
-        Emprestimo AddEmprestimo(Emprestimo emprestimo);
-        Emprestimo? GetEmprestimoById(Guid id);
-        Emprestimo UpdateEmprestimo(Emprestimo emprestimo);
-        List<Emprestimo> GetAll();
-        bool ExistsEmpresitimoAtivo(Guid idAluno, Guid idLivro);
+        Task<Emprestimo> AddEmprestimoAsync(Emprestimo emprestimo);
+        Task<Emprestimo?> GetEmprestimoByIdAsync(Guid id);
+        Task<Emprestimo> UpdateEmprestimoAsync(Emprestimo emprestimo);
+        Task<List<Emprestimo>> GetAllAsync();
+        Task<bool> ExistsEmpresitimoAtivoAsync(Guid idAluno, Guid idLivro);
     }

@@ -1,5 +1,6 @@
 using Models;
 using DataContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository;
 public class AutorRepository : IAutorRepository
@@ -11,33 +12,33 @@ public class AutorRepository : IAutorRepository
         _contextDb = contextDb;
     }
 
-    public Autor AddAutor(Autor autor)
+    public async Task<Autor> AddAutorAsync(Autor autor)
     {
-        _contextDb.Add(autor);
-        _contextDb.SaveChanges();
+        await _contextDb.AddAsync(autor);
+        await _contextDb.SaveChangesAsync();
         return autor;
     }
 
-    public Autor? GetAutorById(Guid id)
+    public async Task<Autor?> GetAutorByIdAsync(Guid id)
     {
-        return _contextDb.Autores.FirstOrDefault(a => a.Id.Equals(id));
+        return await _contextDb.Autores.FirstOrDefaultAsync(a => a.Id.Equals(id));
     }
 
-    public List<Autor> GetAllAutores()
+    public async Task<List<Autor>> GetAllAutoresAsync()
     {
-        return _contextDb.Autores.ToList();
+        return await _contextDb.Autores.ToListAsync();
     }
 
-    public Autor UpdateAutor(Autor autor)
+    public async Task<Autor> UpdateAutorAsync(Autor autor)
     {
         _contextDb.Update(autor);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
         return autor;
     }
 
-    public void DeleteAutor(Autor autor)
+    public async Task DeleteAutorAsync(Autor autor)
     {
         _contextDb.Remove(autor);
-        _contextDb.SaveChanges();
+        await _contextDb.SaveChangesAsync();
     }
 }

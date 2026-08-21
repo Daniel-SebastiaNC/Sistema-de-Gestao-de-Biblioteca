@@ -19,32 +19,32 @@ namespace Services
             _mapper = mapper;
         }
 
-        public LivroResponseDTO AddLivro(CriarLivroDto dto)
+        public async Task<LivroResponseDTO> AddLivroAsync(CriarLivroDto dto)
         {
-            var autor = _autorRepository.GetAutorById(dto.AutorId) ?? throw new NotFoundException($"Autor com Id {dto.AutorId} não encontrado");
+            var autor = await _autorRepository.GetAutorByIdAsync(dto.AutorId) ?? throw new NotFoundException($"Autor com Id {dto.AutorId} não encontrado");
             var livro = _mapper.Map<Livro>(dto);
             
             livro.Autor = autor;
 
-            livro = _repositopry.AddLivro(livro);
+            livro = await _repositopry.AddLivroAsync(livro);
             return _mapper.Map<LivroResponseDTO>(livro);
         }
 
-        public List<LivroResponseDTO> GetLivrosByAutorOrTitle(string? titulo, string? autor)
+        public async Task<List<LivroResponseDTO>> GetLivrosByAutorOrTitleAsync(string? titulo, string? autor)
         {
-            List<Livro> livros = _repositopry.GetLivrosByAutorOrTitle(titulo, autor);
+            List<Livro> livros = await _repositopry.GetLivrosByAutorOrTitleAsync(titulo, autor);
             return _mapper.Map<List<LivroResponseDTO>>(livros);
         }
 
-        public LivroResponseDTO GetLivrosById(Guid id)
+        public async Task<LivroResponseDTO> GetLivrosByIdAsync(Guid id)
         {
-            Livro livro = _repositopry.GetLivroById(id) ?? throw new NotFoundException($"Livro com id {id} não encontrado.");
+            Livro livro = await _repositopry.GetLivroByIdAsync(id) ?? throw new NotFoundException($"Livro com id {id} não encontrado.");
             return _mapper.Map<LivroResponseDTO>(livro);
         }
 
-        public List<LivroResponseDTO> GetAll()
+        public async Task<List<LivroResponseDTO>> GetAllAsync()
         {
-            List<Livro> livros = _repositopry.GetAllLivros();
+            List<Livro> livros = await _repositopry.GetAllLivrosAsync();
 
             return _mapper.Map<List<LivroResponseDTO>>(livros);
         }
