@@ -40,6 +40,16 @@ builder.Services.AddScoped<IAutorService, AutorService>();
 builder.Services.AddScoped<ILivroService, LivroService>();
 builder.Services.AddScoped<IEmprestimoService, EmprestimoService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsConfiguration", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()                     
+              .AllowAnyHeader();                    
+    });
+});
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -50,6 +60,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRouting();
+
+app.UseCors("CorsConfiguration");
 
 app.UseHttpsRedirection();
 
