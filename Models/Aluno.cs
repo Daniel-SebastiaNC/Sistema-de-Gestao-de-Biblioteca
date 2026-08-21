@@ -8,6 +8,6 @@ namespace Models
         public string Email { get; set; }
 
         public List<Emprestimo> Emprestimos { get; set; } = new List<Emprestimo>();
-            
+
     }
 }

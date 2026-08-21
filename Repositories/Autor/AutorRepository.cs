@@ -3,6 +3,7 @@ using DataContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repository;
+
 public class AutorRepository : IAutorRepository
 {
     private readonly BibliotecaContext _contextDb;

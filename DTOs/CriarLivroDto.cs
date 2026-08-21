@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace DTO;
+
 public record CriarLivroDto(
     [NotNull]
     string ISBN,

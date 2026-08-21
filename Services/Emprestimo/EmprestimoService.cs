@@ -13,8 +13,8 @@ public class EmprestimoService : IEmprestimoService
     private readonly IMapper _mapper;
 
     public EmprestimoService(
-        IEmprestimoRepository emprestimoRepository, 
-        ILivroRepository livroRepository, 
+        IEmprestimoRepository emprestimoRepository,
+        ILivroRepository livroRepository,
         IMapper mapper)
     {
         _emprestimoRepository = emprestimoRepository;
@@ -30,11 +30,11 @@ public class EmprestimoService : IEmprestimoService
         {
             throw new ConflictException("O aluno já possui um empréstimo ativo deste mesmo livro.");
         }
-        
-        if (livro == null) 
+
+        if (livro == null)
             throw new ConflictException("Livro não encontrado.");
-            
-        if (livro.Quantidade <= 0) 
+
+        if (livro.Quantidade <= 0)
             throw new ConflictException("Livro indisponível no estoque.");
 
         livro.Quantidade -= 1;
@@ -59,11 +59,11 @@ public class EmprestimoService : IEmprestimoService
     public async Task<EmprestimoResponseDTO> ReturnEmprestimoAsync(Guid id)
     {
         var emprestimo = await _emprestimoRepository.GetEmprestimoByIdAsync(id);
-        
-        if (emprestimo == null) 
+
+        if (emprestimo == null)
             throw new NotFoundException("Empréstimo não encontrado.");
-            
-        if (emprestimo.Status == StatusEmprestimo.Devolvido) 
+
+        if (emprestimo.Status == StatusEmprestimo.Devolvido)
             throw new ConflictException("Este empréstimo já foi devolvido.");
 
         emprestimo.DataDevolucao = DateTime.Now;

@@ -9,6 +9,6 @@ namespace Models
         public int Quantidade { get; set; }
         public Guid AutorId { get; set; }
         public Autor Autor { get; set; }
-        
+
     }
 }

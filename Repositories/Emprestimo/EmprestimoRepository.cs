@@ -3,6 +3,7 @@ using DataContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repository;
+
 public class EmprestimoRepository : IEmprestimoRepository
 {
     private readonly BibliotecaContext _contextDb;
@@ -24,7 +25,7 @@ public class EmprestimoRepository : IEmprestimoRepository
         return await _contextDb.Emprestimos
             .Include(e => e.Aluno)
             .Include(e => e.Livro)
-                .ThenInclude(l => l.Autor) 
+                .ThenInclude(l => l.Autor)
             .FirstOrDefaultAsync(e => e.Id.Equals(id));
     }
 
@@ -40,15 +41,15 @@ public class EmprestimoRepository : IEmprestimoRepository
         return await _contextDb.Emprestimos
             .Include(e => e.Aluno)
             .Include(e => e.Livro)
-                .ThenInclude(l => l.Autor) 
+                .ThenInclude(l => l.Autor)
             .ToListAsync();
     }
 
     public async Task<bool> ExistsEmpresitimoAtivoAsync(Guid idAluno, Guid idLivro)
     {
-        return await _contextDb.Emprestimos.AnyAsync(e => 
-        e.AlunoId == idAluno && 
-        e.LivroId == idLivro && 
+        return await _contextDb.Emprestimos.AnyAsync(e =>
+        e.AlunoId == idAluno &&
+        e.LivroId == idLivro &&
         e.Status == StatusEmprestimo.Ativo);
     }
 }

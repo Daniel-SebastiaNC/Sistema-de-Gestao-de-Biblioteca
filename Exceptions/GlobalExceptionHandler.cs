@@ -7,8 +7,8 @@ namespace Handlers;
 public class GlobalExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
-        HttpContext httpContext, 
-        Exception exception, 
+        HttpContext httpContext,
+        Exception exception,
         CancellationToken cancellationToken)
     {
         var (statusCode, title) = exception switch
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         httpContext.Response.StatusCode = statusCode;
 
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-        
+
         return true;
     }
 }

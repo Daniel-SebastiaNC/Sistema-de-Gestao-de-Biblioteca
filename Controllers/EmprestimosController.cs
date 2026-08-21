@@ -24,7 +24,7 @@ namespace Controllers
             }
             var emprestimo = await _emprestimoService.AddEmprestimoAsync(dto);
             return Created($"/api/emprestimos/{emprestimo.Id}", emprestimo);
-            
+
         }
 
         [HttpPut("{id}/devolucao")]
@@ -32,7 +32,7 @@ namespace Controllers
         {
             var emprestimoAtualizado = await _emprestimoService.ReturnEmprestimoAsync(id);
             return Ok(emprestimoAtualizado);
-            
+
         }
 
         [HttpGet("api/[controller]/all")]

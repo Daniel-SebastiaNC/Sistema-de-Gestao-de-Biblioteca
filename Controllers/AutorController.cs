@@ -8,7 +8,7 @@ namespace Controllers;
 [Route("api/[controller]")]
 public class AutorController : ControllerBase
 {
-    private readonly IAutorService _service; 
+    private readonly IAutorService _service;
 
     public AutorController(IAutorService service)
     {
@@ -33,7 +33,7 @@ public class AutorController : ControllerBase
     public async Task<ActionResult<AutorResponseDto>> AddAutor(CriarAutorDto dto)
     {
         var autor = await _service.AddAutorAsync(dto);
-        return CreatedAtAction(nameof(GetAutorById), new {id = autor.Id}, autor);
+        return CreatedAtAction(nameof(GetAutorById), new { id = autor.Id }, autor);
     }
 
     [HttpPut("{id}")]

@@ -1,7 +1,8 @@
 namespace DTO;
+
 public record AutorResponseDto(
         Guid Id,
-        string Nome,  
+        string Nome,
         DateTime DataNascimento,
         string Nacionalidade
     );

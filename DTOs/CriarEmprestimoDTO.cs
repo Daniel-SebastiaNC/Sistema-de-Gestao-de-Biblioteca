@@ -5,7 +5,7 @@ namespace DTO;
 public record CriarEmprestimoDTO(
     [NotNull]
     Guid IdAluno,
-    
+
     [NotNull]
     Guid IdLivro
 );

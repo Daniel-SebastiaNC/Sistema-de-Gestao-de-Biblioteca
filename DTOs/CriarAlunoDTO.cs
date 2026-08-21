@@ -9,7 +9,7 @@ public record CriarAlunoDTO(
 
     [NotNull]
     string Matricula,
-    
+
     [EmailAddress]
     string Email
 );

@@ -23,7 +23,7 @@ namespace Services
         {
             var autor = await _autorRepository.GetAutorByIdAsync(dto.AutorId) ?? throw new NotFoundException($"Autor com Id {dto.AutorId} não encontrado");
             var livro = _mapper.Map<Livro>(dto);
-            
+
             livro.Autor = autor;
 
             livro = await _repositopry.AddLivroAsync(livro);

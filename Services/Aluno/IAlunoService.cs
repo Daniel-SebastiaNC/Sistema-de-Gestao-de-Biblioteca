@@ -1,6 +1,7 @@
 using DTO;
 
 namespace Services;
+
 public interface IAlunoService
 {
     Task<AlunoResponseDTO> AddAlunoAsync(CriarAlunoDTO dto);

@@ -1,11 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace DTO;
+
 public record CriarAutorDto(
     [NotNull]
     string Nome,
 
-    [NotNull]  
+    [NotNull]
     DateTime DataNascimento,
 
     [NotNull]

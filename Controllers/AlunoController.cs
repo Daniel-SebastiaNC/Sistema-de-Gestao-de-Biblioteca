@@ -8,7 +8,7 @@ namespace Controllers;
 [Route("api/[controller]")]
 public class AlunoController : ControllerBase
 {
-    private readonly IAlunoService _service; 
+    private readonly IAlunoService _service;
 
     public AlunoController(IAlunoService service)
     {
@@ -22,7 +22,7 @@ public class AlunoController : ControllerBase
         return Ok(alunos);
     }
 
-     [HttpGet("{id}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<AlunoResponseDTO>> GetAlunoById(Guid id)
     {
         var aluno = await _service.GetAlunoByIdAsync(id);
@@ -33,7 +33,7 @@ public class AlunoController : ControllerBase
     public async Task<ActionResult<AlunoResponseDTO>> AddAluno(CriarAlunoDTO dto)
     {
         var aluno = await _service.AddAlunoAsync(dto);
-        return CreatedAtAction(nameof(GetAlunoById), new {id = aluno.Id}, aluno);
+        return CreatedAtAction(nameof(GetAlunoById), new { id = aluno.Id }, aluno);
     }
 
 

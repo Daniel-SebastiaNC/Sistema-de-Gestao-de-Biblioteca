@@ -5,7 +5,7 @@ using Services;
 namespace Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] 
+    [Route("api/[controller]")]
     public class LivrosController : ControllerBase
     {
         private readonly ILivroService _livroService;
@@ -21,14 +21,14 @@ namespace Controllers
 
             var livroCriado = await _livroService.AddLivroAsync(dto);
 
-            return CreatedAtAction(nameof(GetLivroById), new {id = livroCriado.Id},livroCriado);
+            return CreatedAtAction(nameof(GetLivroById), new { id = livroCriado.Id }, livroCriado);
         }
 
         [HttpGet]
         public async Task<IActionResult> ObterLivros([FromQuery] string? titulo, [FromQuery] string? autor)
         {
             var livros = await _livroService.GetLivrosByAutorOrTitleAsync(titulo, autor);
-            
+
             return Ok(livros);
         }
 
@@ -36,7 +36,7 @@ namespace Controllers
         public async Task<IActionResult> GetLivroById(Guid id)
         {
             var livros = await _livroService.GetLivrosByIdAsync(id);
-            
+
             return Ok(livros);
         }
 
@@ -44,7 +44,7 @@ namespace Controllers
         public async Task<IActionResult> GetAll()
         {
             List<LivroResponseDTO> livros = await _livroService.GetAllAsync();
-            
+
             return Ok(livros);
         }
 

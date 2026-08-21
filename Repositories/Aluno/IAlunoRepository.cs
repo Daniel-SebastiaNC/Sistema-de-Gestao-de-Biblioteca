@@ -1,6 +1,7 @@
 using Models;
 
-namespace Repository;    
+namespace Repository;
+
 public interface IAlunoRepository
 {
     Task<Aluno> AddAlunoAsync(Aluno aluno);

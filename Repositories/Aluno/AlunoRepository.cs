@@ -3,6 +3,7 @@ using DataContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repository;
+
 public class AlunoRepository : IAlunoRepository
 {
     private readonly BibliotecaContext _contextDb;
