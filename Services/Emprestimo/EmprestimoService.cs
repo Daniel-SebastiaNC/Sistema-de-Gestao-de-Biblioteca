@@ -87,7 +87,15 @@ public class EmprestimoService : IEmprestimoService
     {
         var emprestimos = await _emprestimoRepository.GetAllAsync();
         return _mapper.Map<List<EmprestimoResponseDTO>>(emprestimos);
-    }´
+    }
+
+    public void ValidarDisponibilidade(int quantidade)
+    {
+        if (!LivroDisponivel(quantidade))
+        {
+            throw new RegraNegocioException("Livro indisponível no estoque.");
+        }
+    }
 
     public bool LivroDisponivel(int quantidade)
     {
@@ -96,7 +104,7 @@ public class EmprestimoService : IEmprestimoService
 
     public decimal CalcularMulta(int diasAtraso)
     {
-        const decimal valorPorDia = 3.00m;
+        const decimal valorPorDia = 2.00m; //precisamos mudar pra 2 reais o dia (antigamente era 3)
         if (diasAtraso <= 0)
         {
             return 0;
