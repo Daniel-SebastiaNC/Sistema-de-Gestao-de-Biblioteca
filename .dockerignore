@@ -1,0 +1,7 @@
+bin/
+obj/
+*.db
+.vs/
+.vscode/
+Migrations/
+!Migrations/*.cs

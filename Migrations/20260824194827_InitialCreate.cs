@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Biblioteca.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +15,10 @@ namespace Biblioteca.Api.Migrations
                 name: "Alunos",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Nome = table.Column<string>(type: "TEXT", nullable: false),
-                    Matricula = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Matricula = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,10 +29,10 @@ namespace Biblioteca.Api.Migrations
                 name: "Autores",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Nome = table.Column<string>(type: "TEXT", nullable: false),
-                    DataNascimento = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Nacionalidade = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    DataNascimento = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Nacionalidade = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -43,12 +43,12 @@ namespace Biblioteca.Api.Migrations
                 name: "Livros",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ISBN = table.Column<string>(type: "TEXT", nullable: false),
-                    Titulo = table.Column<string>(type: "TEXT", nullable: false),
-                    AnoPublicacao = table.Column<int>(type: "INTEGER", nullable: false),
-                    Quantidade = table.Column<int>(type: "INTEGER", nullable: false),
-                    AutorId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ISBN = table.Column<string>(type: "text", nullable: false),
+                    Titulo = table.Column<string>(type: "text", nullable: false),
+                    AnoPublicacao = table.Column<int>(type: "integer", nullable: false),
+                    Quantidade = table.Column<int>(type: "integer", nullable: false),
+                    AutorId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,13 +65,13 @@ namespace Biblioteca.Api.Migrations
                 name: "Emprestimos",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AlunoId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LivroId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DataEmprestimo = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    DataPrevistaDevolucao = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    DataDevolucao = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AlunoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LivroId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DataEmprestimo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataPrevistaDevolucao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataDevolucao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

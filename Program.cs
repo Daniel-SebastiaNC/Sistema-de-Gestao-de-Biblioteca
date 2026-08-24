@@ -16,7 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<BibliotecaContext>(options =>
-    options.UseSqlite("Data Source=biblioteca.db"));
+     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
@@ -70,5 +70,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<BibliotecaContext>();
+    context.Database.Migrate();
+}
 
 app.Run();
