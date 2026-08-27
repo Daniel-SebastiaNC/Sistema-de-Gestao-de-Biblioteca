@@ -66,7 +66,21 @@ public class LivroRepository : ILivroRepository
 
     public async Task<(List<Livro> Items, int TotalCount)> GetPagedLivrosByAutorOrTitleAsync(string? titulo, string? autor, int pageNumber, int pageSize)
     {
+        return await GetPagedLivrosAsync(null, titulo, autor, pageNumber, pageSize);
+    }
+
+    public async Task<(List<Livro> Items, int TotalCount)> GetPagedLivrosAsync(string? termo, string? titulo, string? autor, int pageNumber, int pageSize)
+    {
         IQueryable<Livro> query = _contextDb.Livros.Include(l => l.Autor);
+
+        if (!string.IsNullOrWhiteSpace(termo))
+        {
+            var termoLower = termo.ToLower();
+            query = query.Where(l =>
+                l.Titulo.ToLower().Contains(termoLower) ||
+                l.ISBN.ToLower().Contains(termoLower) ||
+                (l.Autor != null && l.Autor.Nome.ToLower().Contains(termoLower)));
+        }
 
         if (!string.IsNullOrWhiteSpace(titulo))
         {
@@ -85,5 +99,10 @@ public class LivroRepository : ILivroRepository
             .ToListAsync();
 
         return (items, totalCount);
+    }
+
+    public async Task<bool> HasActiveLoansAsync(Guid livroId)
+    {
+        return await _contextDb.Emprestimos.AnyAsync(e => e.LivroId == livroId && e.Status == StatusEmprestimo.Ativo);
     }
 }

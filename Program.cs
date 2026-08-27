@@ -38,6 +38,8 @@ builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
 builder.Services.AddScoped<IAutorRepository, AutorRepository>();
 builder.Services.AddScoped<ILivroRepository, LivroRepository>();
 builder.Services.AddScoped<IEmprestimoRepository, EmprestimoRepository>();
+builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
+builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -45,6 +47,8 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<EmprestimoProfile>();
     cfg.AddProfile<AutorProfile>();
     cfg.AddProfile<LivroProfile>();
+    cfg.AddProfile<ReservaProfile>();
+    cfg.AddProfile<AuditoriaProfile>();
 });
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -54,6 +58,10 @@ builder.Services.AddScoped<IAlunoService, AlunoService>();
 builder.Services.AddScoped<IAutorService, AutorService>();
 builder.Services.AddScoped<ILivroService, LivroService>();
 builder.Services.AddScoped<IEmprestimoService, EmprestimoService>();
+builder.Services.AddScoped<IReservaService, ReservaService>();
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 
 var corsOrigin = builder.Configuration["CORS_ORIGIN"] ?? "http://localhost:5173";
 

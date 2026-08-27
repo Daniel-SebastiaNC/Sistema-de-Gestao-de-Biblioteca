@@ -26,11 +26,12 @@ namespace Controllers
 
         [HttpGet]
         public async Task<ActionResult<PagedResultDTO<LivroResponseDTO>>> ObterLivros(
+            [FromQuery] string? termo,
             [FromQuery] string? titulo,
             [FromQuery] string? autor,
             [FromQuery] PaginationParamsDTO pagination)
         {
-            var livros = await _livroService.GetPagedLivrosAsync(titulo, autor, pagination);
+            var livros = await _livroService.GetPagedLivrosAsync(termo, titulo, autor, pagination);
 
             return Ok(livros);
         }
@@ -43,6 +44,20 @@ namespace Controllers
             return Ok(livros);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult<LivroResponseDTO>> AtualizarLivro(Guid id, [FromBody] AtualizarLivroDto dto)
+        {
+            var livroAtualizado = await _livroService.UpdateLivroAsync(id, dto);
+            return Ok(livroAtualizado);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLivro(Guid id)
+        {
+            await _livroService.DeleteLivroAsync(id);
+            return NoContent();
+        }
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
@@ -50,6 +65,5 @@ namespace Controllers
 
             return Ok(livros);
         }
-
     }
 }

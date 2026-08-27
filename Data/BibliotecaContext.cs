@@ -13,6 +13,8 @@ public class BibliotecaContext : DbContext
     public DbSet<Autor> Autores { get; set; }
     public DbSet<Livro> Livros { get; set; }
     public DbSet<Emprestimo> Emprestimos { get; set; }
+    public DbSet<Reserva> Reservas { get; set; }
+    public DbSet<Auditoria> Auditorias { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

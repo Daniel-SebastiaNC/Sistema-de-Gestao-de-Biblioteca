@@ -17,36 +17,48 @@ API REST em C# / ASP.NET Core para gerenciar autores, livros, alunos e emprésti
 - Swagger / OpenAPI
 - Docker & Docker Compose
 
-## Endpoints principais (com Paginação)
+## Endpoints da API
 
 Todos os endpoints de listagem aceitam parâmetros opcionais de query string para paginação:
 - `pageNumber` (padrão: 1)
 - `pageSize` (padrão: 10, máximo: 50)
 
-### Autores — `/api/autor`
-- `GET /api/autor?pageNumber=1&pageSize=10` — lista autores paginados
+### 1. Gestão do Acervo 📖
+- `GET /api/livros?termo=&pageNumber=1&pageSize=10` — busca paginada com filtro por termo (título, autor ou ISBN)
+- `GET /api/livros/{id}` — consulta detalhada do livro
+- `POST /api/livros` — cadastro de novos livros
+- `PUT /api/livros/{id}` — atualização cadastral do livro
+- `DELETE /api/livros/{id}` — exclusão de livro do catálogo (com validação de empréstimos ativos)
+- `GET /api/livros/all` — lista todos os livros sem paginação
+
+### 2. Autores e Alunos
+- `GET /api/autor?pageNumber=1&pageSize=10` — lista autores
 - `GET /api/autor/{id}` — busca por id
 - `POST /api/autor` — cadastra
 - `PUT /api/autor/{id}` — atualiza
 - `DELETE /api/autor/{id}` — remove
-
-### Livros — `/api/livros`
-- `GET /api/livros?titulo=&autor=&pageNumber=1&pageSize=10` — busca livros paginados por título e/ou autor
-- `GET /api/livros/{id}` — busca por id
-- `POST /api/livros` — cadastra
-- `GET /api/livros/all` — lista todos os livros
-
-### Alunos — `/api/aluno`
-- `GET /api/aluno?pageNumber=1&pageSize=10` — lista alunos paginados
+- `GET /api/aluno?pageNumber=1&pageSize=10` — lista alunos
 - `GET /api/aluno/{id}` — busca por id
 - `POST /api/aluno` — cadastra
 - `DELETE /api/aluno/{id}` — remove
 
-### Empréstimos — `/api/emprestimos`
+### 3. Empréstimos e Reservas ⏳
+- `POST /api/emprestimos` — registra a saída de um livro para um aluno
+- `POST /api/emprestimos/devolver` — processa a devolução com cálculo automático de atrasos e multas (R$ 2,00/dia)
+- `PUT /api/emprestimos/{id}/devolucao` — devolução simplificada por ID
 - `GET /api/emprestimos?pageNumber=1&pageSize=10` — lista empréstimos paginados
-- `POST /api/emprestimos` — registra um empréstimo
-- `PUT /api/emprestimos/{id}/devolucao` — registra a devolução
-- `GET /api/emprestimos/all` — lista todos os empréstimos
+- `POST /api/reservas` — permite reservar um livro indisponível
+- `GET /api/reservas/fila/{livroId}` — retorna a fila de espera prioritária do livro
+
+### 4. Dashboard e Relatórios 📊
+- `GET /api/dashboard` — estatísticas consolidadas (Total de Livros, Usuários Ativos, Empréstimos Ativos, Livros Atrasados, Reservas Ativas)
+- `GET /api/relatorios/populares?top=10` — relatório dos livros mais emprestados
+- `GET /api/relatorios/atrasados` — relatório de empréstimos pendentes e atrasados com cálculo de multas estimadas
+- `GET /api/relatorios/historico?dataInicio=&dataFim=` — histórico de transações por período
+
+### 5. Auditoria e Monitoramento 📈
+- `GET /api/auditoria?pageNumber=1&pageSize=10` — log detalhado de ações críticas realizadas (Quem, O quê, Quando)
+- `GET /health` — monitoramento de saúde do sistema (status da API e conexão com PostgreSQL)
 
 ## Configuração de Ambiente (.env)
 

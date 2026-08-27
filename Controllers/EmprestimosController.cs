@@ -32,7 +32,13 @@ namespace Controllers
         {
             var emprestimoAtualizado = await _emprestimoService.ReturnEmprestimoAsync(id);
             return Ok(emprestimoAtualizado);
+        }
 
+        [HttpPost("devolver")]
+        public async Task<ActionResult<DevolucaoResponseDTO>> Devolver([FromBody] DevolverEmprestimoDTO dto)
+        {
+            var devolucao = await _emprestimoService.DevolverComCalculoMultaAsync(dto);
+            return Ok(devolucao);
         }
 
         [HttpGet]

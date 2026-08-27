@@ -15,19 +15,22 @@ public class EmprestimoService : IEmprestimoService
     private readonly ILivroRepository _livroRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<EmprestimoService> _logger;
+    private readonly IAuditoriaService? _auditoriaService;
 
     public EmprestimoService(
         IEmprestimoRepository emprestimoRepository,
         IAlunoRepository alunoRepository,
         ILivroRepository livroRepository,
         IMapper mapper,
-        ILogger<EmprestimoService>? logger = null)
+        ILogger<EmprestimoService>? logger = null,
+        IAuditoriaService? auditoriaService = null)
     {
         _emprestimoRepository = emprestimoRepository;
         _alunoRepository = alunoRepository;
         _livroRepository = livroRepository;
         _mapper = mapper;
         _logger = logger ?? NullLogger<EmprestimoService>.Instance;
+        _auditoriaService = auditoriaService;
     }
 
     public async Task<EmprestimoResponseDTO> AddEmprestimoAsync(CriarEmprestimoDTO dto)
@@ -76,28 +79,49 @@ public class EmprestimoService : IEmprestimoService
         _logger.LogInformation("Empréstimo ID {Id} criado com sucesso para Aluno '{AlunoNome}' e Livro '{LivroTitulo}'",
             emprestimoCriado.Id, aluno.Nome, livro.Titulo);
 
+        if (_auditoriaService != null)
+        {
+            await _auditoriaService.RegistrarAcaoAsync("CRIACAO_EMPRESTIMO", $"Empréstimo ID {emprestimoCriado.Id} criado para aluno '{aluno.Nome}' do livro '{livro.Titulo}'");
+        }
+
         return _mapper.Map<EmprestimoResponseDTO>(emprestimoCriado);
     }
 
     public async Task<EmprestimoResponseDTO> ReturnEmprestimoAsync(Guid id)
     {
-        _logger.LogInformation("Processando devolução para Empréstimo ID {Id}", id);
+        var devolucao = await DevolverComCalculoMultaAsync(new DevolverEmprestimoDTO { EmprestimoId = id });
+        return devolucao.Emprestimo;
+    }
 
-        var emprestimo = await _emprestimoRepository.GetEmprestimoByIdAsync(id);
+    public async Task<DevolucaoResponseDTO> DevolverComCalculoMultaAsync(DevolverEmprestimoDTO dto)
+    {
+        _logger.LogInformation("Processando devolução para Empréstimo ID {Id}", dto.EmprestimoId);
+
+        var emprestimo = await _emprestimoRepository.GetEmprestimoByIdAsync(dto.EmprestimoId);
         if (emprestimo == null)
         {
-            _logger.LogWarning("Falha na devolução: Empréstimo com ID {Id} não encontrado", id);
-            throw new NotFoundException($"Empréstimo com id {id} não encontrado.");
+            _logger.LogWarning("Falha na devolução: Empréstimo com ID {Id} não encontrado", dto.EmprestimoId);
+            throw new NotFoundException($"Empréstimo com id {dto.EmprestimoId} não encontrado.");
         }
 
         if (emprestimo.Status == StatusEmprestimo.Devolvido)
         {
-            _logger.LogWarning("Falha na devolução: Empréstimo ID {Id} já estava devolvido", id);
+            _logger.LogWarning("Falha na devolução: Empréstimo ID {Id} já estava devolvido", dto.EmprestimoId);
             throw new ConflictException("Este empréstimo já foi devolvido.");
         }
 
-        emprestimo.DataDevolucao = DateTime.Now;
+        var dataDevolucao = DateTime.Now;
+        emprestimo.DataDevolucao = dataDevolucao;
         emprestimo.Status = StatusEmprestimo.Devolvido;
+
+        // Calcular dias de atraso e multa
+        int diasAtraso = 0;
+        if (dataDevolucao > emprestimo.DataPrevistaDevolucao)
+        {
+            diasAtraso = (int)Math.Ceiling((dataDevolucao - emprestimo.DataPrevistaDevolucao).TotalDays);
+        }
+
+        decimal valorMulta = CalcularMulta(diasAtraso);
 
         if (emprestimo.Livro != null)
         {
@@ -108,9 +132,28 @@ public class EmprestimoService : IEmprestimoService
 
         var emprestimoAtualizado = await _emprestimoRepository.UpdateEmprestimoAsync(emprestimo);
 
-        _logger.LogInformation("Devolução do Empréstimo ID {Id} concluída com sucesso", id);
+        _logger.LogInformation("Devolução do Empréstimo ID {Id} concluída. Dias de atraso: {DiasAtraso}, Multa: R$ {Multa}",
+            dto.EmprestimoId, diasAtraso, valorMulta);
 
-        return _mapper.Map<EmprestimoResponseDTO>(emprestimoAtualizado);
+        if (_auditoriaService != null)
+        {
+            await _auditoriaService.RegistrarAcaoAsync(
+                "DEVOLUCAO_EMPRESTIMO",
+                $"Empréstimo ID {dto.EmprestimoId} devolvido. Dias de atraso: {diasAtraso}, Multa: R$ {valorMulta:F2}");
+        }
+
+        var responseDto = _mapper.Map<EmprestimoResponseDTO>(emprestimoAtualizado);
+        string mensagem = diasAtraso > 0
+            ? $"Devolução realizada com {diasAtraso} dia(s) de atraso. Multa gerada: R$ {valorMulta:F2}."
+            : "Devolução realizada com sucesso dentro do prazo!";
+
+        return new DevolucaoResponseDTO
+        {
+            Emprestimo = responseDto,
+            DiasAtraso = diasAtraso,
+            ValorMulta = valorMulta,
+            Mensagem = mensagem
+        };
     }
 
     public async Task<List<EmprestimoResponseDTO>> GetAllAsync()
