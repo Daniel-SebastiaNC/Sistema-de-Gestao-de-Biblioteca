@@ -3,6 +3,7 @@ using DataContext;
 using Handlers;
 using Mapper;
 using Microsoft.EntityFrameworkCore;
+using Middlewares;
 using Repository;
 using Services;
 
@@ -69,6 +70,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.UseMiddleware<RequestLoggingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
