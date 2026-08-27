@@ -57,6 +57,17 @@ public class AutorService : IAutorService
         return _mapper.Map<List<AutorResponseDto>>(autores);
     }
 
+    public async Task<PagedResultDTO<AutorResponseDto>> GetPagedAutoresAsync(PaginationParamsDTO paginationParams)
+    {
+        _logger.LogInformation("Buscando autores paginados - Página {PageNumber}, Tamanho {PageSize}",
+            paginationParams.PageNumber, paginationParams.PageSize);
+
+        var (items, totalCount) = await _autorRepository.GetPagedAutoresAsync(paginationParams.PageNumber, paginationParams.PageSize);
+        var mappedItems = _mapper.Map<List<AutorResponseDto>>(items);
+
+        return new PagedResultDTO<AutorResponseDto>(mappedItems, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
+    }
+
     public async Task<AutorResponseDto> UpdateAutorAsync(Guid id, CriarAutorDto dto)
     {
         _logger.LogInformation("Atualizando autor com ID {Id}", id);

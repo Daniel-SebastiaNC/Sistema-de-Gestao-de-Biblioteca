@@ -120,6 +120,17 @@ public class EmprestimoService : IEmprestimoService
         return _mapper.Map<List<EmprestimoResponseDTO>>(emprestimos);
     }
 
+    public async Task<PagedResultDTO<EmprestimoResponseDTO>> GetPagedAsync(PaginationParamsDTO paginationParams)
+    {
+        _logger.LogInformation("Buscando empréstimos paginados - Página {PageNumber}, Tamanho {PageSize}",
+            paginationParams.PageNumber, paginationParams.PageSize);
+
+        var (items, totalCount) = await _emprestimoRepository.GetPagedAsync(paginationParams.PageNumber, paginationParams.PageSize);
+        var mappedItems = _mapper.Map<List<EmprestimoResponseDTO>>(items);
+
+        return new PagedResultDTO<EmprestimoResponseDTO>(mappedItems, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
+    }
+
     public void ValidarDisponibilidade(int quantidade)
     {
         if (!LivroDisponivel(quantidade))

@@ -16,9 +16,9 @@ public class AlunoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AlunoResponseDTO>>> GetAllAlunos()
+    public async Task<ActionResult<PagedResultDTO<AlunoResponseDTO>>> GetAllAlunos([FromQuery] PaginationParamsDTO pagination)
     {
-        var alunos = await _service.GetAllAlunosAsync();
+        var alunos = await _service.GetPagedAlunosAsync(pagination);
         return Ok(alunos);
     }
 

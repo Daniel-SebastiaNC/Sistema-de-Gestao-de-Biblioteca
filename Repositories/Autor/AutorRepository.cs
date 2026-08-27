@@ -30,6 +30,18 @@ public class AutorRepository : IAutorRepository
         return await _contextDb.Autores.ToListAsync();
     }
 
+    public async Task<(List<Autor> Items, int TotalCount)> GetPagedAutoresAsync(int pageNumber, int pageSize)
+    {
+        var query = _contextDb.Autores;
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<Autor> UpdateAutorAsync(Autor autor)
     {
         _contextDb.Update(autor);

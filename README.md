@@ -17,29 +17,36 @@ API REST em C# / ASP.NET Core para gerenciar autores, livros, alunos e emprésti
 - Swagger / OpenAPI
 - Docker & Docker Compose
 
-## Endpoints principais
+## Endpoints principais (com Paginação)
+
+Todos os endpoints de listagem aceitam parâmetros opcionais de query string para paginação:
+- `pageNumber` (padrão: 1)
+- `pageSize` (padrão: 10, máximo: 50)
 
 ### Autores — `/api/autor`
-- `GET /api/autor` — lista autores
+- `GET /api/autor?pageNumber=1&pageSize=10` — lista autores paginados
 - `GET /api/autor/{id}` — busca por id
 - `POST /api/autor` — cadastra
 - `PUT /api/autor/{id}` — atualiza
 - `DELETE /api/autor/{id}` — remove
 
 ### Livros — `/api/livros`
-- `GET /api/livros?titulo=&autor=` — busca por título e/ou autor
+- `GET /api/livros?titulo=&autor=&pageNumber=1&pageSize=10` — busca livros paginados por título e/ou autor
 - `GET /api/livros/{id}` — busca por id
 - `POST /api/livros` — cadastra
+- `GET /api/livros/all` — lista todos os livros
 
 ### Alunos — `/api/aluno`
-- `GET /api/aluno` — lista alunos
+- `GET /api/aluno?pageNumber=1&pageSize=10` — lista alunos paginados
 - `GET /api/aluno/{id}` — busca por id
 - `POST /api/aluno` — cadastra
 - `DELETE /api/aluno/{id}` — remove
 
 ### Empréstimos — `/api/emprestimos`
+- `GET /api/emprestimos?pageNumber=1&pageSize=10` — lista empréstimos paginados
 - `POST /api/emprestimos` — registra um empréstimo
 - `PUT /api/emprestimos/{id}/devolucao` — registra a devolução
+- `GET /api/emprestimos/all` — lista todos os empréstimos
 
 ## Configuração de Ambiente (.env)
 

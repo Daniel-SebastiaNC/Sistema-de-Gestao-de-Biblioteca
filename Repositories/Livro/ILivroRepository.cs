@@ -11,5 +11,6 @@ public interface ILivroRepository
     Task DeleteLivroAsync(Livro livro);
 
     Task<List<Livro>> GetLivrosByAutorOrTitleAsync(string? titulo, string? autor);
+    Task<(List<Livro> Items, int TotalCount)> GetPagedLivrosByAutorOrTitleAsync(string? titulo, string? autor, int pageNumber, int pageSize);
 }
 

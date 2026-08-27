@@ -38,6 +38,22 @@ public class AlunoRepository : IAlunoRepository
         .ToListAsync();
     }
 
+    public async Task<(List<Aluno> Items, int TotalCount)> GetPagedAlunosAsync(int pageNumber, int pageSize)
+    {
+        var query = _contextDb.Alunos
+            .Include(a => a.Emprestimos)
+                .ThenInclude(e => e.Livro)
+                    .ThenInclude(l => l.Autor);
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<Aluno> UpdateAlunoAsync(Aluno aluno)
     {
         _contextDb.Update(aluno);

@@ -54,6 +54,17 @@ namespace Services
             return _mapper.Map<List<LivroResponseDTO>>(livros);
         }
 
+        public async Task<PagedResultDTO<LivroResponseDTO>> GetPagedLivrosAsync(string? titulo, string? autor, PaginationParamsDTO paginationParams)
+        {
+            _logger.LogInformation("Buscando livros paginados - Titulo: '{Titulo}', Autor: '{Autor}', Página {PageNumber}, Tamanho {PageSize}",
+                titulo, autor, paginationParams.PageNumber, paginationParams.PageSize);
+
+            var (items, totalCount) = await _repositopry.GetPagedLivrosByAutorOrTitleAsync(titulo, autor, paginationParams.PageNumber, paginationParams.PageSize);
+            var mappedItems = _mapper.Map<List<LivroResponseDTO>>(items);
+
+            return new PagedResultDTO<LivroResponseDTO>(mappedItems, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
+        }
+
         public async Task<LivroResponseDTO> GetLivrosByIdAsync(Guid id)
         {
             _logger.LogInformation("Buscando livro com ID {Id}", id);

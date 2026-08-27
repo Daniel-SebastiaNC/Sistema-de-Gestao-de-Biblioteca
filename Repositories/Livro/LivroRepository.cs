@@ -63,4 +63,27 @@ public class LivroRepository : ILivroRepository
 
         return await query.ToListAsync();
     }
+
+    public async Task<(List<Livro> Items, int TotalCount)> GetPagedLivrosByAutorOrTitleAsync(string? titulo, string? autor, int pageNumber, int pageSize)
+    {
+        IQueryable<Livro> query = _contextDb.Livros.Include(l => l.Autor);
+
+        if (!string.IsNullOrWhiteSpace(titulo))
+        {
+            query = query.Where(l => l.Titulo.Contains(titulo));
+        }
+
+        if (!string.IsNullOrWhiteSpace(autor))
+        {
+            query = query.Where(l => l.Autor != null && l.Autor.Nome.Contains(autor));
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
 }

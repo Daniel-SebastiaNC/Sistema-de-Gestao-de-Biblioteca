@@ -25,9 +25,12 @@ namespace Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObterLivros([FromQuery] string? titulo, [FromQuery] string? autor)
+        public async Task<ActionResult<PagedResultDTO<LivroResponseDTO>>> ObterLivros(
+            [FromQuery] string? titulo,
+            [FromQuery] string? autor,
+            [FromQuery] PaginationParamsDTO pagination)
         {
-            var livros = await _livroService.GetLivrosByAutorOrTitleAsync(titulo, autor);
+            var livros = await _livroService.GetPagedLivrosAsync(titulo, autor, pagination);
 
             return Ok(livros);
         }
@@ -40,7 +43,7 @@ namespace Controllers
             return Ok(livros);
         }
 
-        [HttpGet("api/[controller]/all")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
             List<LivroResponseDTO> livros = await _livroService.GetAllAsync();

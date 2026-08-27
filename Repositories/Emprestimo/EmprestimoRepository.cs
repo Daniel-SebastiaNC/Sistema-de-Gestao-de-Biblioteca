@@ -45,6 +45,22 @@ public class EmprestimoRepository : IEmprestimoRepository
             .ToListAsync();
     }
 
+    public async Task<(List<Emprestimo> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize)
+    {
+        var query = _contextDb.Emprestimos
+            .Include(e => e.Aluno)
+            .Include(e => e.Livro)
+                .ThenInclude(l => l.Autor);
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<bool> ExistsEmpresitimoAtivoAsync(Guid idAluno, Guid idLivro)
     {
         return await _contextDb.Emprestimos.AnyAsync(e =>

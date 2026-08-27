@@ -35,8 +35,15 @@ namespace Controllers
 
         }
 
-        [HttpGet("api/[controller]/all")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<PagedResultDTO<EmprestimoResponseDTO>>> GetAll([FromQuery] PaginationParamsDTO pagination)
+        {
+            var emprestimos = await _emprestimoService.GetPagedAsync(pagination);
+            return Ok(emprestimos);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUnpaged()
         {
             var emprestimos = await _emprestimoService.GetAllAsync();
             return Ok(emprestimos);

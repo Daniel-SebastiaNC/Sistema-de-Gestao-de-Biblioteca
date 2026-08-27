@@ -67,6 +67,17 @@ public class AlunoService : IAlunoService
         return _mapper.Map<List<AlunoResponseDTO>>(alunos);
     }
 
+    public async Task<PagedResultDTO<AlunoResponseDTO>> GetPagedAlunosAsync(PaginationParamsDTO paginationParams)
+    {
+        _logger.LogInformation("Buscando alunos paginados - Página {PageNumber}, Tamanho {PageSize}",
+            paginationParams.PageNumber, paginationParams.PageSize);
+
+        var (items, totalCount) = await _repository.GetPagedAlunosAsync(paginationParams.PageNumber, paginationParams.PageSize);
+        var mappedItems = _mapper.Map<List<AlunoResponseDTO>>(items);
+
+        return new PagedResultDTO<AlunoResponseDTO>(mappedItems, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
+    }
+
     public async Task<AlunoResponseDTO> GetAlunoByIdAsync(Guid id)
     {
         _logger.LogInformation("Buscando aluno com ID {Id}", id);

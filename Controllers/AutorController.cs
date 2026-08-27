@@ -16,9 +16,9 @@ public class AutorController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AutorResponseDto>>> GetAllAutores()
+    public async Task<ActionResult<PagedResultDTO<AutorResponseDto>>> GetAllAutores([FromQuery] PaginationParamsDTO pagination)
     {
-        var autores = await _service.GetAllAutoresAsync();
+        var autores = await _service.GetPagedAutoresAsync(pagination);
         return Ok(autores);
     }
 
