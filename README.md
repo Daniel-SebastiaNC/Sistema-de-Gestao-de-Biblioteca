@@ -12,9 +12,10 @@ API REST em C# / ASP.NET Core para gerenciar autores, livros, alunos e emprésti
 ## Tecnologias
 
 - .NET 10 / ASP.NET Core Web API
-- Entity Framework Core + SQLite
+- Entity Framework Core + PostgreSQL
 - AutoMapper
 - Swagger / OpenAPI
+- Docker & Docker Compose
 
 ## Endpoints principais
 
@@ -40,23 +41,39 @@ API REST em C# / ASP.NET Core para gerenciar autores, livros, alunos e emprésti
 - `POST /api/emprestimos` — registra um empréstimo
 - `PUT /api/emprestimos/{id}/devolucao` — registra a devolução
 
-## Como rodar o projeto
+## Configuração de Ambiente (.env)
 
-Pré-requisito: [.NET SDK 10](https://dotnet.microsoft.com/download).
+Copie o arquivo de exemplo e ajuste as variáveis se necessário:
 
 ```bash
-# clonar o repositório
-git clone https://github.com/Daniel-SebastiaNC/Sistema-de-Gestao-de-Biblioteca.git
-cd Sistema-de-Gestao-de-Biblioteca
+cp .env.example .env
+```
 
+Principais variáveis configuráveis no `.env`:
+- `ASPNETCORE_ENVIRONMENT`: Ambiente (`Development`, `Production`)
+- `API_PORT`: Porta exposta pela API (ex: `5084`)
+- `CORS_ORIGIN`: Origem permitida no CORS (ex: `http://localhost:5173`)
+- `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`: Credenciais do banco PostgreSQL
+- `ConnectionStrings__DefaultConnection`: String de conexão completa
+
+## Como rodar o projeto
+
+### Opção 1: Com Docker Compose
+```bash
+# Sobe o banco PostgreSQL e a API com as variáveis do .env
+docker compose up --build
+```
+
+### Opção 2: Localmente (.NET SDK 10)
+```bash
 # restaurar dependências
 dotnet restore
 
-# aplicar as migrations e criar o banco SQLite (biblioteca.db)
+# aplicar migrations no PostgreSQL
 dotnet ef database update
 
 # rodar a aplicação
 dotnet run
 ```
 
-Com o ambiente em `Development`, o Swagger fica disponível para testar os endpoints (normalmente em `https://localhost:<porta>/swagger`).
+Com o ambiente em `Development`, o Swagger fica disponível para testar os endpoints (normalmente em `http://localhost:5084/swagger`).

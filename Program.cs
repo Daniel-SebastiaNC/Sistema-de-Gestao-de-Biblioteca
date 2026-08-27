@@ -1,9 +1,12 @@
+using Common;
 using DataContext;
 using Handlers;
 using Mapper;
 using Microsoft.EntityFrameworkCore;
 using Repository;
 using Services;
+
+DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +18,19 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    var host = builder.Configuration["POSTGRES_HOST"] ?? "localhost";
+    var port = builder.Configuration["POSTGRES_PORT"] ?? "5432";
+    var db = builder.Configuration["POSTGRES_DB"] ?? "biblioteca";
+    var user = builder.Configuration["POSTGRES_USER"] ?? "postgres";
+    var pass = builder.Configuration["POSTGRES_PASSWORD"] ?? "postgres";
+    connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={pass}";
+}
+
 builder.Services.AddDbContext<BibliotecaContext>(options =>
-     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+     options.UseNpgsql(connectionString));
 
 
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
@@ -40,11 +54,13 @@ builder.Services.AddScoped<IAutorService, AutorService>();
 builder.Services.AddScoped<ILivroService, LivroService>();
 builder.Services.AddScoped<IEmprestimoService, EmprestimoService>();
 
+var corsOrigin = builder.Configuration["CORS_ORIGIN"] ?? "http://localhost:5173";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsConfiguration", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(corsOrigin)
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
