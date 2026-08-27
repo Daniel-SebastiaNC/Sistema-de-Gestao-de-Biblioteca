@@ -63,6 +63,14 @@ builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 
+var redisConnectionString = builder.Configuration["REDIS_CONNECTION_STRING"] ?? "localhost:6379";
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnectionString;
+    options.InstanceName = "Biblioteca_";
+});
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
 var corsOrigin = builder.Configuration["CORS_ORIGIN"] ?? "http://localhost:5173";
 
 builder.Services.AddCors(options =>

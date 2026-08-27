@@ -11,18 +11,32 @@ public class RelatorioService : IRelatorioService
 {
     private readonly BibliotecaContext _contextDb;
     private readonly ILogger<RelatorioService> _logger;
+    private readonly ICacheService? _cacheService;
 
     public RelatorioService(
         BibliotecaContext contextDb,
-        ILogger<RelatorioService>? logger = null)
+        ILogger<RelatorioService>? logger = null,
+        ICacheService? cacheService = null)
     {
         _contextDb = contextDb;
         _logger = logger ?? NullLogger<RelatorioService>.Instance;
+        _cacheService = cacheService;
     }
 
     public async Task<List<LivroPopularDTO>> GetLivrosMaisPopularesAsync(int top = 10)
     {
-        _logger.LogInformation("Gerando relatório de livros mais populares (Top {Top})", top);
+        var cacheKey = $"relatorios:populares:{top}";
+
+        if (_cacheService != null)
+        {
+            var cachedReport = await _cacheService.GetAsync<List<LivroPopularDTO>>(cacheKey);
+            if (cachedReport != null)
+            {
+                return cachedReport;
+            }
+        }
+
+        _logger.LogInformation("Gerando relatório de livros mais populares (Top {Top}) no banco de dados", top);
 
         var topLivros = await _contextDb.Emprestimos
             .GroupBy(e => e.LivroId)
@@ -54,6 +68,11 @@ public class RelatorioService : IRelatorioService
                     TotalEmprestimos = item.TotalEmprestimos
                 });
             }
+        }
+
+        if (_cacheService != null)
+        {
+            await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5));
         }
 
         return result;

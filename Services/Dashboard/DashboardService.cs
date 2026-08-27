@@ -11,18 +11,32 @@ public class DashboardService : IDashboardService
 {
     private readonly BibliotecaContext _contextDb;
     private readonly ILogger<DashboardService> _logger;
+    private readonly ICacheService? _cacheService;
 
     public DashboardService(
         BibliotecaContext contextDb,
-        ILogger<DashboardService>? logger = null)
+        ILogger<DashboardService>? logger = null,
+        ICacheService? cacheService = null)
     {
         _contextDb = contextDb;
         _logger = logger ?? NullLogger<DashboardService>.Instance;
+        _cacheService = cacheService;
     }
 
     public async Task<DashboardDTO> GetDashboardStatsAsync()
     {
-        _logger.LogInformation("Calculando estatísticas consolidadas do Dashboard");
+        const string cacheKey = "dashboard:stats";
+
+        if (_cacheService != null)
+        {
+            var cachedStats = await _cacheService.GetAsync<DashboardDTO>(cacheKey);
+            if (cachedStats != null)
+            {
+                return cachedStats;
+            }
+        }
+
+        _logger.LogInformation("Calculando estatísticas consolidadas do Dashboard no banco de dados");
 
         var totalLivros = await _contextDb.Livros.SumAsync(l => (int?)l.Quantidade) ?? 0;
         var totalUsuariosAtivos = await _contextDb.Alunos.CountAsync();
@@ -31,7 +45,7 @@ public class DashboardService : IDashboardService
             e.Status == StatusEmprestimo.Ativo && e.DataPrevistaDevolucao < DateTime.Now);
         var totalReservasAtivas = await _contextDb.Reservas.CountAsync(r => r.Status == StatusReserva.Ativa);
 
-        return new DashboardDTO
+        var stats = new DashboardDTO
         {
             TotalLivros = totalLivros,
             TotalUsuariosAtivos = totalUsuariosAtivos,
@@ -39,5 +53,12 @@ public class DashboardService : IDashboardService
             TotalLivrosAtrasados = totalLivrosAtrasados,
             TotalReservasAtivas = totalReservasAtivas
         };
+
+        if (_cacheService != null)
+        {
+            await _cacheService.SetAsync(cacheKey, stats, TimeSpan.FromMinutes(2));
+        }
+
+        return stats;
     }
 }

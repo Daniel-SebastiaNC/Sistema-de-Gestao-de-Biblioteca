@@ -13,6 +13,7 @@ API REST em C# / ASP.NET Core para gerenciar autores, livros, alunos e emprésti
 
 - .NET 10 / ASP.NET Core Web API
 - Entity Framework Core + PostgreSQL
+- Redis (Cache Distribuído de Alta Performance)
 - AutoMapper
 - Swagger / OpenAPI
 - Docker & Docker Compose
@@ -24,8 +25,8 @@ Todos os endpoints de listagem aceitam parâmetros opcionais de query string par
 - `pageSize` (padrão: 10, máximo: 50)
 
 ### 1. Gestão do Acervo 📖
-- `GET /api/livros?termo=&pageNumber=1&pageSize=10` — busca paginada com filtro por termo (título, autor ou ISBN)
-- `GET /api/livros/{id}` — consulta detalhada do livro
+- `GET /api/livros?termo=&pageNumber=1&pageSize=10` — busca paginada com filtro por termo (título, autor ou ISBN) (Cache no Redis)
+- `GET /api/livros/{id}` — consulta detalhada do livro (Cache no Redis com invalidação em edições/exclusões)
 - `POST /api/livros` — cadastro de novos livros
 - `PUT /api/livros/{id}` — atualização cadastral do livro
 - `DELETE /api/livros/{id}` — exclusão de livro do catálogo (com validação de empréstimos ativos)
@@ -51,14 +52,14 @@ Todos os endpoints de listagem aceitam parâmetros opcionais de query string par
 - `GET /api/reservas/fila/{livroId}` — retorna a fila de espera prioritária do livro
 
 ### 4. Dashboard e Relatórios 📊
-- `GET /api/dashboard` — estatísticas consolidadas (Total de Livros, Usuários Ativos, Empréstimos Ativos, Livros Atrasados, Reservas Ativas)
-- `GET /api/relatorios/populares?top=10` — relatório dos livros mais emprestados
+- `GET /api/dashboard` — estatísticas consolidadas (Cache no Redis)
+- `GET /api/relatorios/populares?top=10` — relatório dos livros mais emprestados (Cache no Redis)
 - `GET /api/relatorios/atrasados` — relatório de empréstimos pendentes e atrasados com cálculo de multas estimadas
 - `GET /api/relatorios/historico?dataInicio=&dataFim=` — histórico de transações por período
 
 ### 5. Auditoria e Monitoramento 📈
 - `GET /api/auditoria?pageNumber=1&pageSize=10` — log detalhado de ações críticas realizadas (Quem, O quê, Quando)
-- `GET /health` — monitoramento de saúde do sistema (status da API e conexão com PostgreSQL)
+- `GET /health` — monitoramento de saúde do sistema (status da API, conexão com PostgreSQL e Redis)
 
 ## Configuração de Ambiente (.env)
 
@@ -73,13 +74,14 @@ Principais variáveis configuráveis no `.env`:
 - `API_PORT`: Porta exposta pela API (ex: `5084`)
 - `CORS_ORIGIN`: Origem permitida no CORS (ex: `http://localhost:5173`)
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`: Credenciais do banco PostgreSQL
+- `REDIS_HOST`, `REDIS_PORT`, `REDIS_CONNECTION_STRING`: Conexão com o servidor Redis
 - `ConnectionStrings__DefaultConnection`: String de conexão completa
 
 ## Como rodar o projeto
 
 ### Opção 1: Com Docker Compose
 ```bash
-# Sobe o banco PostgreSQL e a API com as variáveis do .env
+# Sobe o banco PostgreSQL, Redis e a API com as variáveis do .env
 docker compose up --build
 ```
 
