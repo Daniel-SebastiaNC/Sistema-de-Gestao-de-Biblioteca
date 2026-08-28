@@ -1,24 +1,23 @@
-using DataContext;
 using DTO;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Models;
+using Repository;
 
 namespace Services;
 
 public class RelatorioService : IRelatorioService
 {
-    private readonly BibliotecaContext _contextDb;
+    private readonly IRelatorioRepository _relatorioRepository;
     private readonly ILogger<RelatorioService> _logger;
     private readonly ICacheService? _cacheService;
 
     public RelatorioService(
-        BibliotecaContext contextDb,
+        IRelatorioRepository relatorioRepository,
         ILogger<RelatorioService>? logger = null,
         ICacheService? cacheService = null)
     {
-        _contextDb = contextDb;
+        _relatorioRepository = relatorioRepository;
         _logger = logger ?? NullLogger<RelatorioService>.Instance;
         _cacheService = cacheService;
     }
@@ -36,39 +35,9 @@ public class RelatorioService : IRelatorioService
             }
         }
 
-        _logger.LogInformation("Gerando relatório de livros mais populares (Top {Top}) no banco de dados", top);
+        _logger.LogInformation("Gerando relatório de livros mais populares (Top {Top}) via repositório", top);
 
-        var topLivros = await _contextDb.Emprestimos
-            .GroupBy(e => e.LivroId)
-            .Select(g => new
-            {
-                LivroId = g.Key,
-                TotalEmprestimos = g.Count()
-            })
-            .OrderByDescending(x => x.TotalEmprestimos)
-            .Take(top)
-            .ToListAsync();
-
-        var ids = topLivros.Select(t => t.LivroId).ToList();
-        var livrosInfo = await _contextDb.Livros
-            .Include(l => l.Autor)
-            .Where(l => ids.Contains(l.Id))
-            .ToDictionaryAsync(l => l.Id);
-
-        var result = new List<LivroPopularDTO>();
-        foreach (var item in topLivros)
-        {
-            if (livrosInfo.TryGetValue(item.LivroId, out var livro))
-            {
-                result.Add(new LivroPopularDTO
-                {
-                    LivroId = item.LivroId,
-                    Titulo = livro.Titulo,
-                    AutorNome = livro.Autor != null ? livro.Autor.Nome : "Desconhecido",
-                    TotalEmprestimos = item.TotalEmprestimos
-                });
-            }
-        }
+        var result = await _relatorioRepository.GetLivrosMaisPopularesAsync(top);
 
         if (_cacheService != null)
         {
@@ -83,11 +52,7 @@ public class RelatorioService : IRelatorioService
         _logger.LogInformation("Gerando relatório de empréstimos atrasados");
 
         var hoje = DateTime.UtcNow;
-        var atrasados = await _contextDb.Emprestimos
-            .Include(e => e.Aluno)
-            .Include(e => e.Livro)
-            .Where(e => e.Status == StatusEmprestimo.Ativo && e.DataPrevistaDevolucao < hoje)
-            .ToListAsync();
+        var atrasados = await _relatorioRepository.GetEmprestimosAtrasadosAsync(hoje);
 
         const decimal valorMultaPorDia = 2.00m;
 
@@ -119,17 +84,8 @@ public class RelatorioService : IRelatorioService
         var inicio = dataInicio.HasValue ? DateTime.SpecifyKind(dataInicio.Value, DateTimeKind.Utc) : DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         var fim = dataFim.HasValue ? DateTime.SpecifyKind(dataFim.Value, DateTimeKind.Utc) : DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
 
-        var emprestimos = await _contextDb.Emprestimos
-            .Include(e => e.Aluno)
-            .Include(e => e.Livro)
-            .Where(e => e.DataEmprestimo >= inicio && e.DataEmprestimo <= fim)
-            .ToListAsync();
-
-        var reservas = await _contextDb.Reservas
-            .Include(r => r.Aluno)
-            .Include(r => r.Livro)
-            .Where(r => r.DataReserva >= inicio && r.DataReserva <= fim)
-            .ToListAsync();
+        var emprestimos = await _relatorioRepository.GetEmprestimosPorPeriodoAsync(inicio, fim);
+        var reservas = await _relatorioRepository.GetReservasPorPeriodoAsync(inicio, fim);
 
         var resultado = new List<HistoricoTransacaoDTO>();
 

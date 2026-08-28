@@ -45,6 +45,7 @@ builder.Services.AddScoped<IEmprestimoRepository, EmprestimoRepository>();
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IRelatorioRepository, RelatorioRepository>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
