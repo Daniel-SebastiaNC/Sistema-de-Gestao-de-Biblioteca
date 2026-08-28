@@ -4,10 +4,22 @@ public static class DotEnv
 {
     public static void Load(string? filePath = null)
     {
-        filePath ??= Path.Combine(Directory.GetCurrentDirectory(), ".env");
+        if (filePath == null)
+        {
+            var localPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+            var parentPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
 
-        if (!File.Exists(filePath))
+            if (File.Exists(localPath))
+                filePath = localPath;
+            else if (File.Exists(parentPath))
+                filePath = parentPath;
+            else
+                return;
+        }
+        else if (!File.Exists(filePath))
+        {
             return;
+        }
 
         foreach (var line in File.ReadAllLines(filePath))
         {

@@ -61,6 +61,28 @@ Todos os endpoints de listagem aceitam parâmetros opcionais de query string par
 - `GET /api/auditoria?pageNumber=1&pageSize=10` — log detalhado de ações críticas realizadas (Quem, O quê, Quando)
 - `GET /health` — monitoramento de saúde do sistema (status da API, conexão com PostgreSQL e Redis)
 
+## Estrutura do Projeto
+
+```text
+Sistema-de-Gestao-de-Biblioteca/
+├── .env
+├── .env.example
+├── .gitignore
+├── docker-compose.yaml
+├── README.md
+├── backend/               # Código da API .NET 10, Migrations, Testes e Dockerfile
+│   ├── Controllers/
+│   ├── Data/
+│   ├── DTOs/
+│   ├── Models/
+│   ├── Services/
+│   ├── Test/
+│   ├── Biblioteca.Api.csproj
+│   ├── Dockerfile
+│   └── Program.cs
+└── frontend/              # Pasta reservada para a aplicação frontend
+```
+
 ## Configuração de Ambiente (.env)
 
 Copie o arquivo de exemplo e ajuste as variáveis se necessário:
@@ -72,6 +94,7 @@ cp .env.example .env
 Principais variáveis configuráveis no `.env`:
 - `ASPNETCORE_ENVIRONMENT`: Ambiente (`Development`, `Production`)
 - `API_PORT`: Porta exposta pela API (ex: `5084`)
+- `FRONTEND_PORT`: Porta exposta pelo Frontend (ex: `5173`)
 - `CORS_ORIGIN`: Origem permitida no CORS (ex: `http://localhost:5173`)
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`: Credenciais do banco PostgreSQL
 - `REDIS_HOST`, `REDIS_PORT`, `REDIS_CONNECTION_STRING`: Conexão com o servidor Redis
@@ -84,9 +107,12 @@ Principais variáveis configuráveis no `.env`:
 # Sobe o banco PostgreSQL, Redis e a API com as variáveis do .env
 docker compose up --build
 ```
+> *Nota*: Ao adicionar seu projeto frontend e seu respectivo Dockerfile na pasta `frontend/`, descomente o serviço `frontend` em `docker-compose.yaml` para subir tudo junto.
 
 ### Opção 2: Localmente (.NET SDK 10)
 ```bash
+cd backend
+
 # restaurar dependências
 dotnet restore
 
@@ -97,4 +123,4 @@ dotnet ef database update
 dotnet run
 ```
 
-Com o ambiente em `Development`, o Swagger fica disponível para testar os endpoints (normalmente em `http://localhost:5084/swagger`).
+Com o ambiente em `Development`, o Swagger fica disponível para testar os endpoints em `http://localhost:5084/swagger`.

@@ -1,6 +1,17 @@
-/obj
-/bin
+# .NET / Backend
+**/bin/
+**/obj/
+*.db
+*.db-shm
+*.db-wal
+
+# Frontend / Node
+**/node_modules/
+**/dist/
+**/build/
+.npm
+
+# Ambientes & IDEs
 .env
-biblioteca.db
-biblioteca.db-shm
-biblioteca.db-wal
+.vs/
+.vscode/
