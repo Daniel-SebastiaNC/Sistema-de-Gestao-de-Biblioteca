@@ -16,6 +16,7 @@ public class EmprestimoService : IEmprestimoService
     private readonly IMapper _mapper;
     private readonly ILogger<EmprestimoService> _logger;
     private readonly IAuditoriaService? _auditoriaService;
+    private readonly ICacheService? _cacheService;
 
     public EmprestimoService(
         IEmprestimoRepository emprestimoRepository,
@@ -23,7 +24,8 @@ public class EmprestimoService : IEmprestimoService
         ILivroRepository livroRepository,
         IMapper mapper,
         ILogger<EmprestimoService>? logger = null,
-        IAuditoriaService? auditoriaService = null)
+        IAuditoriaService? auditoriaService = null,
+        ICacheService? cacheService = null)
     {
         _emprestimoRepository = emprestimoRepository;
         _alunoRepository = alunoRepository;
@@ -31,6 +33,7 @@ public class EmprestimoService : IEmprestimoService
         _mapper = mapper;
         _logger = logger ?? NullLogger<EmprestimoService>.Instance;
         _auditoriaService = auditoriaService;
+        _cacheService = cacheService;
     }
 
     public async Task<EmprestimoResponseDTO> AddEmprestimoAsync(CriarEmprestimoDTO dto)
@@ -70,8 +73,8 @@ public class EmprestimoService : IEmprestimoService
         var emprestimo = _mapper.Map<Emprestimo>(dto);
         emprestimo.Aluno = aluno;
         emprestimo.Livro = livro;
-        emprestimo.DataEmprestimo = DateTime.Now;
-        emprestimo.DataPrevistaDevolucao = DateTime.Now.AddDays(7);
+        emprestimo.DataEmprestimo = DateTime.UtcNow;
+        emprestimo.DataPrevistaDevolucao = DateTime.UtcNow.AddDays(7);
         emprestimo.Status = StatusEmprestimo.Ativo;
 
         var emprestimoCriado = await _emprestimoRepository.AddEmprestimoAsync(emprestimo);
@@ -82,6 +85,13 @@ public class EmprestimoService : IEmprestimoService
         if (_auditoriaService != null)
         {
             await _auditoriaService.RegistrarAcaoAsync("CRIACAO_EMPRESTIMO", $"Empréstimo ID {emprestimoCriado.Id} criado para aluno '{aluno.Nome}' do livro '{livro.Titulo}'");
+        }
+
+        if (_cacheService != null)
+        {
+            await _cacheService.RemoveAsync("dashboard:stats");
+            await _cacheService.RemoveAsync("relatorios:populares:5");
+            await _cacheService.RemoveAsync("relatorios:populares:10");
         }
 
         return _mapper.Map<EmprestimoResponseDTO>(emprestimoCriado);
@@ -110,7 +120,7 @@ public class EmprestimoService : IEmprestimoService
             throw new ConflictException("Este empréstimo já foi devolvido.");
         }
 
-        var dataDevolucao = DateTime.Now;
+        var dataDevolucao = DateTime.UtcNow;
         emprestimo.DataDevolucao = dataDevolucao;
         emprestimo.Status = StatusEmprestimo.Devolvido;
 
@@ -140,6 +150,13 @@ public class EmprestimoService : IEmprestimoService
             await _auditoriaService.RegistrarAcaoAsync(
                 "DEVOLUCAO_EMPRESTIMO",
                 $"Empréstimo ID {dto.EmprestimoId} devolvido. Dias de atraso: {diasAtraso}, Multa: R$ {valorMulta:F2}");
+        }
+
+        if (_cacheService != null)
+        {
+            await _cacheService.RemoveAsync("dashboard:stats");
+            await _cacheService.RemoveAsync("relatorios:populares:5");
+            await _cacheService.RemoveAsync("relatorios:populares:10");
         }
 
         var responseDto = _mapper.Map<EmprestimoResponseDTO>(emprestimoAtualizado);

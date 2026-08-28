@@ -80,7 +80,7 @@ public class AutorService : IAutorService
         }
 
         autor.Nome = dto.Nome;
-        autor.DataNascimento = dto.DataNascimento;
+        autor.DataNascimento = DateTime.SpecifyKind(dto.DataNascimento, DateTimeKind.Utc);
         autor.Nacionalidade = dto.Nacionalidade;
 
         await _autorRepository.UpdateAutorAsync(autor);

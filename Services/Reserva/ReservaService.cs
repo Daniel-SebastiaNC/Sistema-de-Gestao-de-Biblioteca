@@ -16,6 +16,7 @@ public class ReservaService : IReservaService
     private readonly IMapper _mapper;
     private readonly ILogger<ReservaService> _logger;
     private readonly IAuditoriaService? _auditoriaService;
+    private readonly ICacheService? _cacheService;
 
     public ReservaService(
         IReservaRepository reservaRepository,
@@ -23,7 +24,8 @@ public class ReservaService : IReservaService
         ILivroRepository livroRepository,
         IMapper mapper,
         ILogger<ReservaService>? logger = null,
-        IAuditoriaService? auditoriaService = null)
+        IAuditoriaService? auditoriaService = null,
+        ICacheService? cacheService = null)
     {
         _reservaRepository = reservaRepository;
         _alunoRepository = alunoRepository;
@@ -31,6 +33,7 @@ public class ReservaService : IReservaService
         _mapper = mapper;
         _logger = logger ?? NullLogger<ReservaService>.Instance;
         _auditoriaService = auditoriaService;
+        _cacheService = cacheService;
     }
 
     public async Task<ReservaResponseDTO> AddReservaAsync(CriarReservaDTO dto)
@@ -87,6 +90,11 @@ public class ReservaService : IReservaService
             await _auditoriaService.RegistrarAcaoAsync(
                 "CRIACAO_RESERVA",
                 $"Reserva ID {reservaCriada.Id} criada para aluno '{aluno.Nome}' do livro '{livro.Titulo}'. Posição: {posicao}");
+        }
+
+        if (_cacheService != null)
+        {
+            await _cacheService.RemoveAsync("dashboard:stats");
         }
 
         var response = _mapper.Map<ReservaResponseDTO>(reservaCriada);

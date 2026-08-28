@@ -8,6 +8,7 @@ using Repository;
 using Services;
 
 DotEnv.Load();
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,10 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 builder.Services.AddDbContext<BibliotecaContext>(options =>
-     options.UseNpgsql(connectionString));
+{
+    options.UseNpgsql(connectionString);
+    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
 
 
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();

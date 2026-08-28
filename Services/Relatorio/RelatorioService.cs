@@ -82,7 +82,7 @@ public class RelatorioService : IRelatorioService
     {
         _logger.LogInformation("Gerando relatório de empréstimos atrasados");
 
-        var hoje = DateTime.Now;
+        var hoje = DateTime.UtcNow;
         var atrasados = await _contextDb.Emprestimos
             .Include(e => e.Aluno)
             .Include(e => e.Livro)
@@ -116,8 +116,8 @@ public class RelatorioService : IRelatorioService
     {
         _logger.LogInformation("Gerando relatório de histórico de transações de {DataInicio} até {DataFim}", dataInicio, dataFim);
 
-        var inicio = dataInicio ?? DateTime.MinValue;
-        var fim = dataFim ?? DateTime.MaxValue;
+        var inicio = dataInicio.HasValue ? DateTime.SpecifyKind(dataInicio.Value, DateTimeKind.Utc) : DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+        var fim = dataFim.HasValue ? DateTime.SpecifyKind(dataFim.Value, DateTimeKind.Utc) : DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
 
         var emprestimos = await _contextDb.Emprestimos
             .Include(e => e.Aluno)

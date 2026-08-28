@@ -42,7 +42,7 @@ public class DashboardService : IDashboardService
         var totalUsuariosAtivos = await _contextDb.Alunos.CountAsync();
         var totalEmprestimosAtivos = await _contextDb.Emprestimos.CountAsync(e => e.Status == StatusEmprestimo.Ativo);
         var totalLivrosAtrasados = await _contextDb.Emprestimos.CountAsync(e =>
-            e.Status == StatusEmprestimo.Ativo && e.DataPrevistaDevolucao < DateTime.Now);
+            e.Status == StatusEmprestimo.Ativo && e.DataPrevistaDevolucao < DateTime.UtcNow);
         var totalReservasAtivas = await _contextDb.Reservas.CountAsync(r => r.Status == StatusReserva.Ativa);
 
         var stats = new DashboardDTO

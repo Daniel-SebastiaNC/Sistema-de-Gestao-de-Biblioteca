@@ -60,6 +60,9 @@ namespace Services
             if (_cacheService != null)
             {
                 await _cacheService.SetAsync($"livro:{livro.Id}", response, TimeSpan.FromMinutes(10));
+                await _cacheService.RemoveAsync("dashboard:stats");
+                await _cacheService.RemoveAsync("relatorios:populares:5");
+                await _cacheService.RemoveAsync("relatorios:populares:10");
             }
 
             return response;
@@ -79,30 +82,12 @@ namespace Services
 
         public async Task<PagedResultDTO<LivroResponseDTO>> GetPagedLivrosAsync(string? termo, string? titulo, string? autor, PaginationParamsDTO paginationParams)
         {
-            var cacheKey = $"livros:paged:{termo ?? "all"}:{titulo ?? "all"}:{autor ?? "all"}:{paginationParams.PageNumber}:{paginationParams.PageSize}";
-
-            if (_cacheService != null)
-            {
-                var cachedResult = await _cacheService.GetAsync<PagedResultDTO<LivroResponseDTO>>(cacheKey);
-                if (cachedResult != null)
-                {
-                    return cachedResult;
-                }
-            }
-
             _logger.LogInformation("Buscando livros paginados - Termo: '{Termo}', Titulo: '{Titulo}', Autor: '{Autor}', Página {PageNumber}, Tamanho {PageSize}",
                 termo, titulo, autor, paginationParams.PageNumber, paginationParams.PageSize);
 
             var (items, totalCount) = await _repositopry.GetPagedLivrosAsync(termo, titulo, autor, paginationParams.PageNumber, paginationParams.PageSize);
             var mappedItems = _mapper.Map<List<LivroResponseDTO>>(items);
-            var pagedResult = new PagedResultDTO<LivroResponseDTO>(mappedItems, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
-
-            if (_cacheService != null)
-            {
-                await _cacheService.SetAsync(cacheKey, pagedResult, TimeSpan.FromMinutes(5));
-            }
-
-            return pagedResult;
+            return new PagedResultDTO<LivroResponseDTO>(mappedItems, totalCount, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
         public async Task<LivroResponseDTO> GetLivrosByIdAsync(Guid id)
@@ -174,6 +159,7 @@ namespace Services
             if (_cacheService != null)
             {
                 await _cacheService.SetAsync($"livro:{id}", response, TimeSpan.FromMinutes(10));
+                await _cacheService.RemoveAsync("dashboard:stats");
             }
 
             return response;
@@ -203,6 +189,7 @@ namespace Services
             if (_cacheService != null)
             {
                 await _cacheService.RemoveAsync($"livro:{id}");
+                await _cacheService.RemoveAsync("dashboard:stats");
             }
 
             if (_auditoriaService != null)

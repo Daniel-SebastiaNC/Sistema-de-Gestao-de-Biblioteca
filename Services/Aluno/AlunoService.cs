@@ -13,15 +13,18 @@ public class AlunoService : IAlunoService
     private readonly IAlunoRepository _repository;
     private readonly IMapper _mapper;
     private readonly ILogger<AlunoService> _logger;
+    private readonly ICacheService? _cacheService;
 
     public AlunoService(
         IAlunoRepository repository,
         IMapper mapper,
-        ILogger<AlunoService>? logger = null)
+        ILogger<AlunoService>? logger = null,
+        ICacheService? cacheService = null)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger ?? NullLogger<AlunoService>.Instance;
+        _cacheService = cacheService;
     }
 
     public async Task<AlunoResponseDTO> AddAlunoAsync(CriarAlunoDTO dto)
@@ -42,6 +45,11 @@ public class AlunoService : IAlunoService
 
         _logger.LogInformation("Aluno cadastrado com sucesso com ID {Id}", aluno.Id);
 
+        if (_cacheService != null)
+        {
+            await _cacheService.RemoveAsync("dashboard:stats");
+        }
+
         return _mapper.Map<AlunoResponseDTO>(aluno);
     }
 
@@ -58,6 +66,11 @@ public class AlunoService : IAlunoService
 
         await _repository.DeleteAlunoAsync(aluno);
         _logger.LogInformation("Aluno com ID {Id} excluído com sucesso", id);
+
+        if (_cacheService != null)
+        {
+            await _cacheService.RemoveAsync("dashboard:stats");
+        }
     }
 
     public async Task<List<AlunoResponseDTO>> GetAllAlunosAsync()
