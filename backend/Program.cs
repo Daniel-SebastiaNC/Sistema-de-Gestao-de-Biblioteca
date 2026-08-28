@@ -69,7 +69,14 @@ builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 
-var redisConnectionString = builder.Configuration["REDIS_CONNECTION_STRING"] ?? "localhost:6379";
+var redisConnectionString = builder.Configuration["REDIS_CONNECTION_STRING"];
+if (string.IsNullOrEmpty(redisConnectionString))
+{
+    var redisHost = builder.Configuration["REDIS_HOST"] ?? "localhost";
+    var redisPort = builder.Configuration["REDIS_PORT"] ?? "6379";
+    redisConnectionString = $"{redisHost}:{redisPort}";
+}
+
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = redisConnectionString;

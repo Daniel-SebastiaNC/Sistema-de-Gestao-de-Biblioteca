@@ -38,7 +38,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-biblioteca};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
-      REDIS_CONNECTION_STRING: "${REDIS_HOST:-redis}:${REDIS_PORT:-6379}"
+      REDIS_CONNECTION_STRING: "redis:6379"
     depends_on:
       postgres:
         condition: service_healthy
