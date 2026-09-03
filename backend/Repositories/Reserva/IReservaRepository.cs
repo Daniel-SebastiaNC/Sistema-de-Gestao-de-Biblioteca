@@ -10,4 +10,5 @@ public interface IReservaRepository
     Task<bool> ExistsReservaAtivaAsync(Guid alunoId, Guid livroId);
     Task<int> CountReservasAtivasAsync();
     Task<Reserva> UpdateReservaAsync(Reserva reserva);
+    Task<List<Reserva>> GetByAlunoIdAsync(Guid alunoId);
 }

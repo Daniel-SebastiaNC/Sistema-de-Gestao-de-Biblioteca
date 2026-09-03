@@ -10,4 +10,5 @@ public interface IEmprestimoService
 
     Task<List<EmprestimoResponseDTO>> GetAllAsync();
     Task<PagedResultDTO<EmprestimoResponseDTO>> GetPagedAsync(PaginationParamsDTO paginationParams);
+    Task<List<EmprestimoResponseDTO>> GetByAlunoIdAsync(Guid alunoId);
 }

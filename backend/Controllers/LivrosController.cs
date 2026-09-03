@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using DTO;
 using Services;
 
@@ -6,6 +8,7 @@ namespace Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class LivrosController : ControllerBase
     {
         private readonly ILivroService _livroService;
@@ -16,6 +19,7 @@ namespace Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
         public async Task<IActionResult> CriarLivro(CriarLivroDto dto)
         {
 
@@ -45,6 +49,7 @@ namespace Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
         public async Task<ActionResult<LivroResponseDTO>> AtualizarLivro(Guid id, [FromBody] AtualizarLivroDto dto)
         {
             var livroAtualizado = await _livroService.UpdateLivroAsync(id, dto);
@@ -52,6 +57,7 @@ namespace Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
         public async Task<IActionResult> DeleteLivro(Guid id)
         {
             await _livroService.DeleteLivroAsync(id);

@@ -1,11 +1,14 @@
 using DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using Services;
 
 namespace Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class RelatoriosController : ControllerBase
 {
     private readonly IRelatorioService _relatorioService;
@@ -23,6 +26,7 @@ public class RelatoriosController : ControllerBase
     }
 
     [HttpGet("atrasados")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
     public async Task<ActionResult<List<EmprestimoAtrasadoDTO>>> GetAtrasados()
     {
         var atrasados = await _relatorioService.GetEmprestimosAtrasadosAsync();
@@ -30,6 +34,7 @@ public class RelatoriosController : ControllerBase
     }
 
     [HttpGet("historico")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
     public async Task<ActionResult<List<HistoricoTransacaoDTO>>> GetHistorico(
         [FromQuery] DateTime? dataInicio,
         [FromQuery] DateTime? dataFim)

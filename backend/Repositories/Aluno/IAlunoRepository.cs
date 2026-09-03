@@ -12,5 +12,7 @@ public interface IAlunoRepository
     Task DeleteAlunoAsync(Aluno aluno);
 
     Task<bool> ExistsAlunoByMatriculaAsync(string matricula);
+    Task<bool> ExistsAlunoByEmailAsync(string email);
+    Task<Aluno?> GetByUsuarioIdAsync(Guid usuarioId);
 }
 

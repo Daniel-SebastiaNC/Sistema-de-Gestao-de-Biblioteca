@@ -15,10 +15,24 @@ public class BibliotecaContext : DbContext
     public DbSet<Emprestimo> Emprestimos { get; set; }
     public DbSet<Reserva> Reservas { get; set; }
     public DbSet<Auditoria> Auditorias { get; set; }
+    public DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.HasIndex(u => u.Email).IsUnique();
+            entity.Property(u => u.Perfil).HasConversion<string>();
+        });
+
+        modelBuilder.Entity<Aluno>(entity =>
+        {
+            entity.HasOne(a => a.Usuario)
+                  .WithOne(u => u.Aluno)
+                  .HasForeignKey<Aluno>(a => a.UsuarioId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 }

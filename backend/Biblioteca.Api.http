@@ -1,6 +1,77 @@
 @Biblioteca.Api_HostAddress = http://localhost:5084
 
-GET {{Biblioteca.Api_HostAddress}}/weatherforecast/
+### 1. Health Check (Aberto a todos)
+GET {{Biblioteca.Api_HostAddress}}/health
 Accept: application/json
 
 ###
+
+### 2. Login como ADMIN
+# @name loginAdmin
+POST {{Biblioteca.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@smartlib.com",
+  "senha": "Admin@123"
+}
+
+###
+
+### 3. Login como BIBLIOTECARIO
+# @name loginBiblio
+POST {{Biblioteca.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "biblio@smartlib.com",
+  "senha": "Biblio@123"
+}
+
+###
+
+### 4. Login como ALUNO
+# @name loginAluno
+POST {{Biblioteca.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "aluno@smartlib.com",
+  "senha": "Aluno@123"
+}
+
+###
+
+### 5. Obter Dados do Usuário Logado (/api/auth/me)
+GET {{Biblioteca.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Accept: application/json
+
+###
+
+### 6. Auditoria (Permitido apenas para ADMIN)
+GET {{Biblioteca.Api_HostAddress}}/api/auditoria?pageNumber=1&pageSize=10
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Accept: application/json
+
+###
+
+### 7. Listar Livros (Permitido para ADMIN, BIBLIOTECARIO, ALUNO)
+GET {{Biblioteca.Api_HostAddress}}/api/livros?pageNumber=1&pageSize=10
+Authorization: Bearer {{loginAluno.response.body.token}}
+Accept: application/json
+
+###
+
+### 8. Meus Empréstimos (Exclusivo para ALUNO)
+GET {{Biblioteca.Api_HostAddress}}/api/emprestimos/meus
+Authorization: Bearer {{loginAluno.response.body.token}}
+Accept: application/json
+
+###
+
+### 9. Minhas Reservas (Exclusivo para ALUNO)
+GET {{Biblioteca.Api_HostAddress}}/api/reservas/minhas
+Authorization: Bearer {{loginAluno.response.body.token}}
+Accept: application/json
+

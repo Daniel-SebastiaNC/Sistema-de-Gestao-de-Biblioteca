@@ -63,6 +63,14 @@ public class AlunoRepository : IAlunoRepository
 
     public async Task DeleteAlunoAsync(Aluno aluno)
     {
+        if (aluno.UsuarioId.HasValue)
+        {
+            var usuario = await _contextDb.Usuarios.FindAsync(aluno.UsuarioId.Value);
+            if (usuario != null)
+            {
+                _contextDb.Usuarios.Remove(usuario);
+            }
+        }
         _contextDb.Remove(aluno);
         await _contextDb.SaveChangesAsync();
     }
@@ -70,5 +78,20 @@ public class AlunoRepository : IAlunoRepository
     public async Task<bool> ExistsAlunoByMatriculaAsync(string matricula)
     {
         return await _contextDb.Alunos.AnyAsync(a => a.Matricula == matricula);
+    }
+
+    public async Task<bool> ExistsAlunoByEmailAsync(string email)
+    {
+        var emailLower = email.Trim().ToLower();
+        return await _contextDb.Alunos.AnyAsync(a => a.Email.ToLower() == emailLower);
+    }
+
+    public async Task<Aluno?> GetByUsuarioIdAsync(Guid usuarioId)
+    {
+        return await _contextDb.Alunos
+            .Include(a => a.Emprestimos)
+                .ThenInclude(e => e.Livro)
+                    .ThenInclude(l => l.Autor)
+            .FirstOrDefaultAsync(a => a.UsuarioId == usuarioId);
     }
 }

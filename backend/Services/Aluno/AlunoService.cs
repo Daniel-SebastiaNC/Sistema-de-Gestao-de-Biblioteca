@@ -39,11 +39,40 @@ public class AlunoService : IAlunoService
             throw new BadRequestException($"Já existe um Aluno com Matrícula {dto.Matricula}");
         }
 
-        Aluno aluno = await _repository.AddAlunoAsync(
-            _mapper.Map<Aluno>(dto)
-        );
+        bool isEmailExists = await _repository.ExistsAlunoByEmailAsync(dto.Email);
+        if (isEmailExists)
+        {
+            _logger.LogWarning("Falha ao cadastrar aluno: Email {Email} já está em uso", dto.Email);
+            throw new BadRequestException($"Já existe um Aluno cadastrado com o e-mail {dto.Email}");
+        }
 
-        _logger.LogInformation("Aluno cadastrado com sucesso com ID {Id}", aluno.Id);
+        var senha = string.IsNullOrWhiteSpace(dto.Senha) ? dto.Matricula : dto.Senha;
+        var senhaHash = BCrypt.Net.BCrypt.HashPassword(senha);
+
+        var usuario = new Usuario
+        {
+            Id = Guid.NewGuid(),
+            Nome = dto.Nome.Trim(),
+            Email = dto.Email.Trim().ToLower(),
+            SenhaHash = senhaHash,
+            Perfil = PerfilUsuario.ALUNO,
+            Ativo = true,
+            DataCriacao = DateTime.UtcNow
+        };
+
+        var aluno = new Aluno
+        {
+            Id = Guid.NewGuid(),
+            Nome = dto.Nome.Trim(),
+            Matricula = dto.Matricula.Trim(),
+            Email = dto.Email.Trim().ToLower(),
+            UsuarioId = usuario.Id,
+            Usuario = usuario
+        };
+
+        aluno = await _repository.AddAlunoAsync(aluno);
+
+        _logger.LogInformation("Aluno e Usuário cadastrados com sucesso com ID {Id}", aluno.Id);
 
         if (_cacheService != null)
         {
@@ -100,6 +129,20 @@ public class AlunoService : IAlunoService
         {
             _logger.LogWarning("Aluno com ID {Id} não encontrado", id);
             throw new NotFoundException($"Aluno com id {id} não encontrado.");
+        }
+
+        return _mapper.Map<AlunoResponseDTO>(aluno);
+    }
+
+    public async Task<AlunoResponseDTO> GetAlunoByUsuarioIdAsync(Guid usuarioId)
+    {
+        _logger.LogInformation("Buscando aluno pelo ID do usuário {UsuarioId}", usuarioId);
+
+        Aluno? aluno = await _repository.GetByUsuarioIdAsync(usuarioId);
+        if (aluno == null)
+        {
+            _logger.LogWarning("Aluno com UsuarioID {UsuarioId} não encontrado", usuarioId);
+            throw new NotFoundException("Perfil de aluno vinculado ao usuário autenticado não foi encontrado.");
         }
 
         return _mapper.Map<AlunoResponseDTO>(aluno);

@@ -11,5 +11,7 @@ public record CriarAlunoDTO(
     string Matricula,
 
     [EmailAddress]
-    string Email
+    string Email,
+
+    string? Senha = null
 );

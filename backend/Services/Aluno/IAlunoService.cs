@@ -9,4 +9,5 @@ public interface IAlunoService
     Task<List<AlunoResponseDTO>> GetAllAlunosAsync();
     Task<PagedResultDTO<AlunoResponseDTO>> GetPagedAlunosAsync(PaginationParamsDTO paginationParams);
     Task DeleteAlunoAsync(Guid id);
+    Task<AlunoResponseDTO> GetAlunoByUsuarioIdAsync(Guid usuarioId);
 }

@@ -57,4 +57,15 @@ public class ReservaRepository : IReservaRepository
         await _contextDb.SaveChangesAsync();
         return reserva;
     }
+
+    public async Task<List<Reserva>> GetByAlunoIdAsync(Guid alunoId)
+    {
+        return await _contextDb.Reservas
+            .Include(r => r.Aluno)
+            .Include(r => r.Livro)
+                .ThenInclude(l => l.Autor)
+            .Where(r => r.AlunoId == alunoId)
+            .OrderByDescending(r => r.DataReserva)
+            .ToListAsync();
+    }
 }

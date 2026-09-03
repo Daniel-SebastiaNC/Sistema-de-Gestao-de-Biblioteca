@@ -1,11 +1,14 @@
 using DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using Services;
 
 namespace Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AutorController : ControllerBase
 {
     private readonly IAutorService _service;
@@ -30,6 +33,7 @@ public class AutorController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
     public async Task<ActionResult<AutorResponseDto>> AddAutor(CriarAutorDto dto)
     {
         var autor = await _service.AddAutorAsync(dto);
@@ -37,6 +41,7 @@ public class AutorController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
     public async Task<ActionResult<AutorResponseDto>> UpadateAutor(Guid id, CriarAutorDto dto)
     {
         var autor = await _service.UpdateAutorAsync(id, dto);
@@ -44,6 +49,7 @@ public class AutorController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
     public async Task<IActionResult> DeleteAutor(Guid id)
     {
         await _service.DeleteAutorAsync(id);

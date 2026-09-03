@@ -10,4 +10,5 @@ public interface IEmprestimoRepository
     Task<List<Emprestimo>> GetAllAsync();
     Task<(List<Emprestimo> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize);
     Task<bool> ExistsEmpresitimoAtivoAsync(Guid idAluno, Guid idLivro);
+    Task<List<Emprestimo>> GetByAlunoIdAsync(Guid alunoId);
 }

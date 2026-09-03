@@ -20,6 +20,23 @@ API REST em C# / ASP.NET Core para gerenciar autores, livros, alunos e emprésti
 
 ## Endpoints da API
 
+### 0. Autenticação e Controle de Acesso 🔐
+- `POST /api/auth/login` — Autenticação unificada por e-mail e senha, emite JWT Bearer
+- `GET /api/auth/me` — Consulta os dados e permissões do usuário autenticado
+- `POST /api/auth/usuarios` — Cadastro de novos usuários com perfis específicos (Apenas ADMIN)
+
+#### Perfis de Acesso (RBAC):
+1. **ADMIN**: Gestão total, auditoria (`/api/auditoria`), configurações globais e criação de usuários.
+2. **BIBLIOTECARIO**: Operações de acervo (Livros e Autores), empréstimos, devoluções e reservas.
+3. **ALUNO**: Consultas de acervo, auto-reserva e histórico de seus empréstimos/reservas (`/api/emprestimos/meus`, `/api/reservas/minhas`).
+
+#### Usuários Padrão (Ambiente de Desenvolvimento):
+| Perfil | E-mail | Senha |
+|---|---|---|
+| **ADMIN** | `admin@smartlib.com` | `Admin@123` |
+| **BIBLIOTECARIO** | `biblio@smartlib.com` | `Biblio@123` |
+| **ALUNO** | `aluno@smartlib.com` | `Aluno@123` |
+
 Todos os endpoints de listagem aceitam parâmetros opcionais de query string para paginação:
 - `pageNumber` (padrão: 1)
 - `pageSize` (padrão: 10, máximo: 50)

@@ -7,7 +7,9 @@ namespace Models
         public string Matricula { get; set; }
         public string Email { get; set; }
 
-        public List<Emprestimo> Emprestimos { get; set; } = new List<Emprestimo>();
+        public Guid? UsuarioId { get; set; }
+        public Usuario? Usuario { get; set; }
 
+        public List<Emprestimo> Emprestimos { get; set; } = new List<Emprestimo>();
     }
 }

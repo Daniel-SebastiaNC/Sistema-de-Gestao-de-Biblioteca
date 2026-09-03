@@ -125,4 +125,11 @@ public class ReservaService : IReservaService
 
         return result;
     }
+
+    public async Task<List<ReservaResponseDTO>> GetByAlunoIdAsync(Guid alunoId)
+    {
+        _logger.LogInformation("Buscando reservas do aluno com ID {AlunoId}", alunoId);
+        var reservas = await _reservaRepository.GetByAlunoIdAsync(alunoId);
+        return _mapper.Map<List<ReservaResponseDTO>>(reservas);
+    }
 }

@@ -216,4 +216,11 @@ public class EmprestimoService : IEmprestimoService
         _logger.LogInformation("Multa calculada para {DiasAtraso} dias de atraso: R$ {Multa}", diasAtraso, multa);
         return multa;
     }
+
+    public async Task<List<EmprestimoResponseDTO>> GetByAlunoIdAsync(Guid alunoId)
+    {
+        _logger.LogInformation("Buscando empréstimos do aluno com ID {AlunoId}", alunoId);
+        var emprestimos = await _emprestimoRepository.GetByAlunoIdAsync(alunoId);
+        return _mapper.Map<List<EmprestimoResponseDTO>>(emprestimos);
+    }
 }

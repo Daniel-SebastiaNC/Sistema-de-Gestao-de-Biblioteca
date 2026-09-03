@@ -68,4 +68,15 @@ public class EmprestimoRepository : IEmprestimoRepository
         e.LivroId == idLivro &&
         e.Status == StatusEmprestimo.Ativo);
     }
+
+    public async Task<List<Emprestimo>> GetByAlunoIdAsync(Guid alunoId)
+    {
+        return await _contextDb.Emprestimos
+            .Include(e => e.Aluno)
+            .Include(e => e.Livro)
+                .ThenInclude(l => l.Autor)
+            .Where(e => e.AlunoId == alunoId)
+            .OrderByDescending(e => e.DataEmprestimo)
+            .ToListAsync();
+    }
 }

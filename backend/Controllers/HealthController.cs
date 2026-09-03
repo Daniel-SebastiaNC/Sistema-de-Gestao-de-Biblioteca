@@ -1,5 +1,6 @@
 using DataContext;
 using DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
@@ -7,6 +8,7 @@ namespace Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[AllowAnonymous]
 public class HealthController : ControllerBase
 {
     private readonly BibliotecaContext _contextDb;
