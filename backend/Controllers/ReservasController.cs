@@ -57,4 +57,20 @@ public class ReservasController : ControllerBase
         var reservas = await _reservaService.GetByAlunoIdAsync(alunoId);
         return Ok(reservas);
     }
+
+    [HttpGet]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
+    public async Task<ActionResult<List<ReservaResponseDTO>>> GetAllReservas()
+    {
+        var reservas = await _reservaService.GetAllReservasAsync();
+        return Ok(reservas);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Bibliotecario}")]
+    public async Task<IActionResult> CancelarReserva(Guid id)
+    {
+        await _reservaService.CancelarReservaAsync(id);
+        return NoContent();
+    }
 }

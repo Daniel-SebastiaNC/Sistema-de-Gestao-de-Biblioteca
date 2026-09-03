@@ -68,4 +68,14 @@ public class ReservaRepository : IReservaRepository
             .OrderByDescending(r => r.DataReserva)
             .ToListAsync();
     }
+
+    public async Task<List<Reserva>> GetAllReservasAsync()
+    {
+        return await _contextDb.Reservas
+            .Include(r => r.Aluno)
+            .Include(r => r.Livro)
+                .ThenInclude(l => l.Autor)
+            .OrderByDescending(r => r.DataReserva)
+            .ToListAsync();
+    }
 }

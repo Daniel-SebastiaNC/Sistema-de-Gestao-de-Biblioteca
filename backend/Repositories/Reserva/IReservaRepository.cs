@@ -11,4 +11,5 @@ public interface IReservaRepository
     Task<int> CountReservasAtivasAsync();
     Task<Reserva> UpdateReservaAsync(Reserva reserva);
     Task<List<Reserva>> GetByAlunoIdAsync(Guid alunoId);
+    Task<List<Reserva>> GetAllReservasAsync();
 }

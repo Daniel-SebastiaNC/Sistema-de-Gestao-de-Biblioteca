@@ -105,4 +105,22 @@ public class LivroRepository : ILivroRepository
     {
         return await _contextDb.Emprestimos.AnyAsync(e => e.LivroId == livroId && e.Status == StatusEmprestimo.Ativo);
     }
+
+    public async Task<bool> ExistsByIsbnAsync(string isbn, Guid? excludeId = null)
+    {
+        if (string.IsNullOrWhiteSpace(isbn)) return false;
+        var isbnClean = isbn.Trim().ToLower();
+        return await _contextDb.Livros.AnyAsync(l =>
+            l.ISBN.ToLower() == isbnClean &&
+            (!excludeId.HasValue || l.Id != excludeId.Value));
+    }
+
+    public async Task<Livro?> GetByIsbnAsync(string isbn)
+    {
+        if (string.IsNullOrWhiteSpace(isbn)) return null;
+        var isbnClean = isbn.Trim().ToLower();
+        return await _contextDb.Livros
+            .Include(l => l.Autor)
+            .FirstOrDefaultAsync(l => l.ISBN.ToLower() == isbnClean);
+    }
 }

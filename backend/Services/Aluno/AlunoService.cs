@@ -49,9 +49,11 @@ public class AlunoService : IAlunoService
         var senha = string.IsNullOrWhiteSpace(dto.Senha) ? dto.Matricula : dto.Senha;
         var senhaHash = BCrypt.Net.BCrypt.HashPassword(senha);
 
+        var id = Guid.NewGuid();
+
         var usuario = new Usuario
         {
-            Id = Guid.NewGuid(),
+            Id = id,
             Nome = dto.Nome.Trim(),
             Email = dto.Email.Trim().ToLower(),
             SenhaHash = senhaHash,
@@ -62,11 +64,11 @@ public class AlunoService : IAlunoService
 
         var aluno = new Aluno
         {
-            Id = Guid.NewGuid(),
+            Id = id,
             Nome = dto.Nome.Trim(),
             Matricula = dto.Matricula.Trim(),
             Email = dto.Email.Trim().ToLower(),
-            UsuarioId = usuario.Id,
+            UsuarioId = id,
             Usuario = usuario
         };
 

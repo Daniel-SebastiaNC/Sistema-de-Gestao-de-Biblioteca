@@ -29,10 +29,17 @@ public class BibliotecaContext : DbContext
 
         modelBuilder.Entity<Aluno>(entity =>
         {
+            entity.HasIndex(a => a.Matricula).IsUnique();
+            entity.HasIndex(a => a.Email).IsUnique();
             entity.HasOne(a => a.Usuario)
                   .WithOne(u => u.Aluno)
                   .HasForeignKey<Aluno>(a => a.UsuarioId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Livro>(entity =>
+        {
+            entity.HasIndex(l => l.ISBN).IsUnique();
         });
     }
 }

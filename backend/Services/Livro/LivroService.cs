@@ -37,6 +37,12 @@ namespace Services
         {
             _logger.LogInformation("Tentando cadastrar livro '{Titulo}' para AutorId {AutorId}", dto.Titulo, dto.AutorId);
 
+            if (await _repositopry.ExistsByIsbnAsync(dto.ISBN))
+            {
+                _logger.LogWarning("Falha ao cadastrar livro: ISBN '{ISBN}' já está cadastrado", dto.ISBN);
+                throw new ConflictException($"Já existe um livro cadastrado com o ISBN '{dto.ISBN}'.");
+            }
+
             var autor = await _autorRepository.GetAutorByIdAsync(dto.AutorId);
             if (autor == null)
             {
@@ -130,6 +136,12 @@ namespace Services
             {
                 _logger.LogWarning("Livro com ID {Id} não encontrado para atualização", id);
                 throw new NotFoundException($"Livro com id {id} não encontrado.");
+            }
+
+            if (await _repositopry.ExistsByIsbnAsync(dto.ISBN, id))
+            {
+                _logger.LogWarning("Falha ao atualizar livro: ISBN '{ISBN}' já está sendo utilizado por outro livro", dto.ISBN);
+                throw new ConflictException($"Já existe outro livro cadastrado com o ISBN '{dto.ISBN}'.");
             }
 
             var autor = await _autorRepository.GetAutorByIdAsync(dto.AutorId);

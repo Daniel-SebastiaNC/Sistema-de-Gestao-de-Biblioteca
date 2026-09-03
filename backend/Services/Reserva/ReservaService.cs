@@ -132,4 +132,50 @@ public class ReservaService : IReservaService
         var reservas = await _reservaRepository.GetByAlunoIdAsync(alunoId);
         return _mapper.Map<List<ReservaResponseDTO>>(reservas);
     }
+
+    public async Task<List<ReservaResponseDTO>> GetAllReservasAsync()
+    {
+        _logger.LogInformation("Buscando todas as reservas cadastradas para gestão");
+        var reservas = await _reservaRepository.GetAllReservasAsync();
+        var result = new List<ReservaResponseDTO>();
+
+        foreach (var r in reservas)
+        {
+            var dto = _mapper.Map<ReservaResponseDTO>(r);
+            if (r.Status == StatusReserva.Ativa)
+            {
+                var fila = await _reservaRepository.GetFilaEsperaByLivroIdAsync(r.LivroId);
+                dto.PosicaoFila = fila.FindIndex(f => f.Id == r.Id) + 1;
+            }
+            result.Add(dto);
+        }
+
+        return result;
+    }
+
+    public async Task CancelarReservaAsync(Guid reservaId)
+    {
+        _logger.LogInformation("Tentando cancelar reserva ID {ReservaId}", reservaId);
+        var reserva = await _reservaRepository.GetReservaByIdAsync(reservaId);
+        if (reserva == null)
+        {
+            _logger.LogWarning("Reserva {ReservaId} não encontrada para cancelamento", reservaId);
+            throw new NotFoundException($"Reserva com ID '{reservaId}' não encontrada.");
+        }
+
+        reserva.Status = StatusReserva.Cancelada;
+        await _reservaRepository.UpdateReservaAsync(reserva);
+
+        if (_auditoriaService != null)
+        {
+            await _auditoriaService.RegistrarAcaoAsync(
+                "CANCELAMENTO_RESERVA",
+                $"Reserva ID {reserva.Id} cancelada para o livro '{reserva.Livro?.Titulo}' e aluno '{reserva.Aluno?.Nome}'");
+        }
+
+        if (_cacheService != null)
+        {
+            await _cacheService.RemoveAsync("dashboard:stats");
+        }
+    }
 }

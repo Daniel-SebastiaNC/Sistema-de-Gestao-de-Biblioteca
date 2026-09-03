@@ -57,4 +57,12 @@ public class AuthController : ControllerBase
         var usuario = await _authService.RegistrarAsync(dto);
         return Created($"/api/auth/usuarios/{usuario.Id}", usuario);
     }
+
+    [HttpGet("usuarios")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<List<UsuarioResponseDTO>>> ListarUsuarios()
+    {
+        var usuarios = await _authService.ListarUsuariosAsync();
+        return Ok(usuarios);
+    }
 }

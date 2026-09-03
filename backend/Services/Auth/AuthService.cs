@@ -122,4 +122,18 @@ public class AuthService : IAuthService
             Matricula = usuario.Aluno?.Matricula
         };
     }
+
+    public async Task<List<UsuarioResponseDTO>> ListarUsuariosAsync()
+    {
+        var usuarios = await _usuarioRepository.GetAllAsync();
+        return usuarios.Select(u => new UsuarioResponseDTO
+        {
+            Id = u.Id,
+            Nome = u.Nome,
+            Email = u.Email,
+            Perfil = u.Perfil.ToString(),
+            AlunoId = u.Aluno?.Id,
+            Matricula = u.Aluno?.Matricula
+        }).ToList();
+    }
 }

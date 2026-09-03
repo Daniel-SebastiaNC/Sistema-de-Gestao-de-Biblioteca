@@ -14,5 +14,7 @@ public interface ILivroRepository
     Task<(List<Livro> Items, int TotalCount)> GetPagedLivrosByAutorOrTitleAsync(string? titulo, string? autor, int pageNumber, int pageSize);
     Task<(List<Livro> Items, int TotalCount)> GetPagedLivrosAsync(string? termo, string? titulo, string? autor, int pageNumber, int pageSize);
     Task<bool> HasActiveLoansAsync(Guid livroId);
+    Task<bool> ExistsByIsbnAsync(string isbn, Guid? excludeId = null);
+    Task<Livro?> GetByIsbnAsync(string isbn);
 }
 
