@@ -2,7 +2,8 @@
 // Livros Page - CRUD
 // ========================================
 
-import { getLivros, criarLivro, atualizarLivro, deletarLivro, getAutores } from '../api.js';
+import { getLivros, criarLivro, atualizarLivro, deletarLivro, getAutores, criarReserva, getFilaReserva } from '../api.js';
+import { canManageAcervo, isAluno } from '../auth.js';
 import { renderTable, renderLoading } from '../components/table.js';
 import { openModal, showConfirm } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
@@ -14,6 +15,7 @@ let searchTimeout = null;
 
 export async function renderLivros() {
   const content = document.getElementById('page-content');
+  const canManage = canManageAcervo();
 
   content.innerHTML = `
     <div class="page-header">
@@ -22,49 +24,54 @@ export async function renderLivros() {
         <p class="page-subtitle">Gerencie o acervo da biblioteca</p>
       </div>
       <div class="page-header__actions">
-        <div class="search-bar">
-          <span class="material-icons-round search-bar__icon">search</span>
-          <input
-            type="text"
-            class="search-bar__input"
-            id="livros-search"
-            placeholder="Buscar por título, autor..."
-            value="${searchTerm}"
-          />
-        </div>
-        <button class="btn btn-primary" id="btn-novo-livro">
-          <span class="material-icons-round">add</span>
-          Novo Livro
-        </button>
+        ${canManage ? `
+          <button class="btn btn-primary" id="btn-novo-livro">
+            <span class="material-icons-round">add</span>
+            Novo Livro
+          </button>
+        ` : ''}
       </div>
     </div>
 
     <div class="table-card">
+      <div class="table-card__header">
+        <div class="search-box">
+          <span class="material-icons-round search-box__icon">search</span>
+          <input
+            type="text"
+            id="search-livros"
+            class="search-box__input"
+            placeholder="Buscar por título, ISBN ou autor..."
+            value="${searchTerm}"
+          />
+        </div>
+      </div>
       <div id="livros-table-container">
         <div class="loading"><div class="spinner"></div></div>
       </div>
     </div>
   `;
 
-  // Event listeners
-  document.getElementById('btn-novo-livro').addEventListener('click', () => openLivroForm());
-
-  document.getElementById('livros-search').addEventListener('input', (e) => {
+  // Search with debounce
+  const searchInput = document.getElementById('search-livros');
+  searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       searchTerm = e.target.value.trim();
       currentPage = 1;
       loadLivros();
-    }, 400);
+    }, 350);
   });
+
+  if (canManage) {
+    document.getElementById('btn-novo-livro')?.addEventListener('click', () => openLivroForm());
+  }
 
   await loadLivros();
 
-  // Return cleanup
   return () => {
-    clearTimeout(searchTimeout);
-    currentPage = 1;
     searchTerm = '';
+    currentPage = 1;
   };
 }
 
@@ -83,19 +90,32 @@ async function loadLivros() {
 
     const items = result.items || [];
 
-    renderTable(container, {
-      columns: [
-        { key: 'titulo', label: 'Título', render: (row) => `<span style="color:var(--text-primary);font-weight:500">${row.titulo || '—'}</span>` },
-        { key: 'isbn', label: 'ISBN' },
-        { key: 'autor', label: 'Autor', render: (row) => row.autor?.nome || '—' },
-        { key: 'anoPublicacao', label: 'Ano' },
-        { key: 'quantidade', label: 'Qtd', render: (row) => {
-          const qty = row.quantidade ?? 0;
-          const badgeClass = qty > 0 ? 'badge--success' : 'badge--danger';
-          return `<span class="badge ${badgeClass}">${qty}</span>`;
-        }},
-        { key: 'actions', label: 'Ações', render: (row) => `
+    const columns = [
+      { key: 'titulo', label: 'Título', render: (row) => `<span style="color:var(--text-primary);font-weight:500">${row.titulo || '—'}</span>` },
+      { key: 'isbn', label: 'ISBN' },
+      { key: 'autor', label: 'Autor', render: (row) => row.autor?.nome || '—' },
+      { key: 'anoPublicacao', label: 'Ano' },
+      { key: 'quantidade', label: 'Qtd', render: (row) => {
+        const qty = row.quantidade ?? 0;
+        const badgeClass = qty > 0 ? 'badge--success' : 'badge--danger';
+        return `<span class="badge ${badgeClass}">${qty}</span>`;
+      }},
+    ];
+
+    const canManage = canManageAcervo();
+    const isAlunoUser = isAluno();
+
+    if (canManage) {
+      columns.push({
+        key: 'actions',
+        label: 'Ações',
+        render: (row) => `
           <div class="table-actions">
+            ${(row.quantidade ?? 0) === 0 ? `
+              <button class="btn btn-icon btn-secondary" data-queue="${row.id}" title="Ver fila de espera">
+                <span class="material-icons-round">bookmarks</span>
+              </button>
+            ` : ''}
             <button class="btn btn-icon btn-secondary" data-edit="${row.id}" title="Editar">
               <span class="material-icons-round">edit</span>
             </button>
@@ -103,8 +123,29 @@ async function loadLivros() {
               <span class="material-icons-round">delete</span>
             </button>
           </div>
-        `},
-      ],
+        `,
+      });
+    } else if (isAlunoUser) {
+      columns.push({
+        key: 'actions',
+        label: 'Ações',
+        render: (row) => {
+          const qty = row.quantidade ?? 0;
+          if (qty === 0) {
+            return `
+              <button class="btn btn-sm btn-secondary" data-reserve="${row.id}" title="Entrar na fila de espera">
+                <span class="material-icons-round" style="font-size: 1rem;">bookmark_add</span>
+                Reservar
+              </button>
+            `;
+          }
+          return `<span class="badge badge--success">Disponível</span>`;
+        },
+      });
+    }
+
+    renderTable(container, {
+      columns,
       data: items,
       pagination: {
         pageNumber: result.pageNumber,
@@ -122,37 +163,102 @@ async function loadLivros() {
       emptyText: searchTerm ? 'Nenhum livro encontrado para a busca' : 'Nenhum livro cadastrado',
     });
 
-    // Edit/Delete handlers
-    container.querySelectorAll('[data-edit]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const livro = items.find(l => l.id === btn.dataset.edit);
-        if (livro) openLivroForm(livro);
-      });
-    });
-
-    container.querySelectorAll('[data-delete]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const livro = items.find(l => l.id === btn.dataset.delete);
-        if (!livro) return;
-
-        const confirmed = await showConfirm({
-          title: 'Excluir Livro',
-          message: `Tem certeza que deseja excluir "${livro.titulo}"? Esta ação não pode ser desfeita.`,
-          confirmText: 'Excluir',
-          type: 'danger',
+    // Action handlers for Admin & Bibliotecario
+    if (canManage) {
+      container.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const livro = items.find(l => l.id === btn.dataset.edit);
+          if (livro) openLivroForm(livro);
         });
-
-        if (confirmed) {
-          try {
-            await deletarLivro(livro.id);
-            showToast('Livro excluído com sucesso!', 'success');
-            loadLivros();
-          } catch (err) {
-            showToast('Erro ao excluir: ' + err.message, 'error');
-          }
-        }
       });
-    });
+
+      container.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const livro = items.find(l => l.id === btn.dataset.delete);
+          if (!livro) return;
+
+          const confirmed = await showConfirm({
+            title: 'Excluir Livro',
+            message: `Tem certeza que deseja excluir "${livro.titulo}"? Esta ação não pode ser desfeita.`,
+            confirmText: 'Excluir',
+            type: 'danger',
+          });
+
+          if (confirmed) {
+            try {
+              await deletarLivro(livro.id);
+              showToast('Livro excluído com sucesso!', 'success');
+              loadLivros();
+            } catch (err) {
+              showToast('Erro ao excluir: ' + err.message, 'error');
+            }
+          }
+        });
+      });
+
+      // Queue handler for Bibliotecario and Admin
+      container.querySelectorAll('[data-queue]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const livro = items.find(l => l.id === btn.dataset.queue);
+          if (!livro) return;
+          try {
+            const fila = await getFilaReserva(livro.id);
+            const contentEl = document.createElement('div');
+            if (!fila || fila.length === 0) {
+              contentEl.innerHTML = '<p style="color:var(--text-secondary);padding:16px 0;">Nenhum aluno na fila de espera para este livro.</p>';
+            } else {
+              contentEl.innerHTML = `
+                <p style="margin-bottom:12px;color:var(--text-secondary);font-size:0.9rem;">Fila de espera para <strong>${livro.titulo}</strong>:</p>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  ${fila.map((r, i) => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-glass);border-radius:8px;border:1px solid var(--border-color);">
+                      <div>
+                        <strong>${i + 1}º - ${r.alunoNome || 'Aluno'}</strong>
+                        <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Data: ${new Date(r.dataReserva).toLocaleDateString('pt-BR')}</span>
+                      </div>
+                      <span class="badge badge--warning">Posição ${r.posicaoFila || i + 1}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            openModal({
+              title: `Fila de Espera - ${livro.titulo}`,
+              content: contentEl,
+            });
+          } catch (err) {
+            showToast('Erro ao carregar fila de espera: ' + err.message, 'error');
+          }
+        });
+      });
+    }
+
+    // Reservation handler for Aluno
+    if (isAlunoUser) {
+      container.querySelectorAll('[data-reserve]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const livro = items.find(l => l.id === btn.dataset.reserve);
+          if (!livro) return;
+
+          const confirmed = await showConfirm({
+            title: 'Reservar Livro',
+            message: `Deseja entrar na fila de espera prioritária para "${livro.titulo}"?`,
+            confirmText: 'Confirmar Reserva',
+            type: 'primary',
+          });
+
+          if (confirmed) {
+            try {
+              await criarReserva({ livroId: livro.id });
+              showToast('Reserva confirmada! Acompanhe em Minhas Reservas.', 'success');
+              loadLivros();
+            } catch (err) {
+              showToast(err.message || 'Erro ao realizar reserva.', 'error');
+            }
+          }
+        });
+      });
+    }
   } catch (err) {
     container.innerHTML = `
       <div class="empty-state">

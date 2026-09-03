@@ -2,18 +2,18 @@
 // Autores Page - CRUD
 // ========================================
 
-import { getAutores } from '../api.js';
+import { getAutores, criarAutor, atualizarAutor, deletarAutor } from '../api.js';
+import { canManageAcervo } from '../auth.js';
 import { renderTable, renderLoading } from '../components/table.js';
 import { openModal, showConfirm } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
-
-const API_BASE = '/api';
 
 let currentPage = 1;
 const PAGE_SIZE = 10;
 
 export async function renderAutores() {
   const content = document.getElementById('page-content');
+  const canManage = canManageAcervo();
 
   content.innerHTML = `
     <div class="page-header">
@@ -22,10 +22,12 @@ export async function renderAutores() {
         <p class="page-subtitle">Gerencie os autores cadastrados</p>
       </div>
       <div class="page-header__actions">
-        <button class="btn btn-primary" id="btn-novo-autor">
-          <span class="material-icons-round">add</span>
-          Novo Autor
-        </button>
+        ${canManage ? `
+          <button class="btn btn-primary" id="btn-novo-autor">
+            <span class="material-icons-round">add</span>
+            Novo Autor
+          </button>
+        ` : ''}
       </div>
     </div>
 
@@ -36,7 +38,9 @@ export async function renderAutores() {
     </div>
   `;
 
-  document.getElementById('btn-novo-autor').addEventListener('click', () => openAutorForm());
+  if (canManage) {
+    document.getElementById('btn-novo-autor')?.addEventListener('click', () => openAutorForm());
+  }
 
   await loadAutores();
 
@@ -115,7 +119,7 @@ async function loadAutores() {
 
         if (confirmed) {
           try {
-            await fetch(`${API_BASE}/Autor/${autor.id}`, { method: 'DELETE' });
+            await deletarAutor(autor.id);
             showToast('Autor excluído com sucesso!', 'success');
             loadAutores();
           } catch (err) {
@@ -204,22 +208,13 @@ async function openAutorForm(autor = null) {
     saveBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Salvando...';
 
     try {
-      const body = JSON.stringify({ nome, dataNascimento, nacionalidade });
-      const headers = { 'Content-Type': 'application/json' };
+      const payload = { nome, dataNascimento, nacionalidade };
 
       if (isEdit) {
-        const res = await fetch(`${API_BASE}/Autor/${autor.id}`, { method: 'PUT', headers, body });
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(err || `Erro ${res.status}`);
-        }
+        await atualizarAutor(autor.id, payload);
         showToast('Autor atualizado com sucesso!', 'success');
       } else {
-        const res = await fetch(`${API_BASE}/Autor`, { method: 'POST', headers, body });
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(err || `Erro ${res.status}`);
-        }
+        await criarAutor(payload);
         showToast('Autor cadastrado com sucesso!', 'success');
       }
 

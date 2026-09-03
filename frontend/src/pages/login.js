@@ -3,6 +3,7 @@
 // ========================================
 
 import { showToast } from '../components/toast.js';
+import { login, getDefaultRoute } from '../auth.js';
 
 export function renderLogin() {
   const app = document.getElementById('app');
@@ -47,16 +48,38 @@ export function renderLogin() {
           </button>
         </form>
 
-        <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--text-muted);">
-          Insira qualquer email e senha para acessar
-        </p>
+        <div class="login-dev-credentials" style="margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.03); border: 1px solid var(--border, #e2e8f0); border-radius: 8px; font-size: 0.75rem;">
+          <p style="font-weight: 600; margin-bottom: 8px; color: var(--text-muted, #64748b); text-align: center;">Usuários Padrão (Ambiente de Desenvolvimento):</p>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <button type="button" class="btn-demo-user" data-email="admin@smartlib.com" data-pass="Admin@123" style="text-align: left; background: #fff; border: 1px dashed #cbd5e1; padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; font-size: 0.75rem;">
+              <span><strong>ADMIN:</strong> admin@smartlib.com</span>
+              <code>Admin@123</code>
+            </button>
+            <button type="button" class="btn-demo-user" data-email="biblio@smartlib.com" data-pass="Biblio@123" style="text-align: left; background: #fff; border: 1px dashed #cbd5e1; padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; font-size: 0.75rem;">
+              <span><strong>BIBLIOTECÁRIO:</strong> biblio@smartlib.com</span>
+              <code>Biblio@123</code>
+            </button>
+            <button type="button" class="btn-demo-user" data-email="aluno@smartlib.com" data-pass="Aluno@123" style="text-align: left; background: #fff; border: 1px dashed #cbd5e1; padding: 6px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; font-size: 0.75rem;">
+              <span><strong>ALUNO:</strong> aluno@smartlib.com</span>
+              <code>Aluno@123</code>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `;
 
+  // Demo user autofill
+  document.querySelectorAll('.btn-demo-user').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('login-email').value = btn.dataset.email;
+      document.getElementById('login-password').value = btn.dataset.pass;
+    });
+  });
+
   // Form submit
   const form = document.getElementById('login-form');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('login-email').value.trim();
@@ -67,20 +90,30 @@ export function renderLogin() {
       return;
     }
 
-    // Simulate login
-    const user = {
-      email,
-      name: email.split('@')[0],
-      loggedAt: new Date().toISOString(),
-    };
+    const submitBtn = document.getElementById('login-submit');
+    const originalBtnHtml = submitBtn.innerHTML;
 
-    localStorage.setItem('biblioteca_user', JSON.stringify(user));
-    showToast('Login realizado com sucesso!', 'success');
+    try {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 6px;"></span>
+        Autenticando...
+      `;
 
-    // Reload to trigger auth guard
-    setTimeout(() => {
-      window.location.hash = '/dashboard';
-      window.location.reload();
-    }, 300);
+      const data = await login(email, password);
+      const user = data.usuario || {};
+
+      showToast(`Bem-vindo(a), ${user.nome || 'ao SmartLib'}!`, 'success');
+
+      setTimeout(() => {
+        const defaultRoute = getDefaultRoute();
+        window.location.hash = defaultRoute;
+        window.location.reload();
+      }, 350);
+    } catch (err) {
+      showToast(err.message || 'Credenciais inválidas: e-mail ou senha incorretos.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
   });
 }

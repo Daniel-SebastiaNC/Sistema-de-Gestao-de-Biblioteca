@@ -2,14 +2,21 @@
 // API Service - Centralized API calls
 // ========================================
 
+import { getToken, logout } from './auth.js';
+import { showToast } from './components/toast.js';
+
 const API_BASE = '/api';
 
 async function request(endpoint, options = {}) {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
 
+  const token = getToken();
+  const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
+
   const config = {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     },
     ...options,
@@ -19,6 +26,17 @@ async function request(endpoint, options = {}) {
     const response = await fetch(url, config);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        showToast('Sessão expirada. Faça login novamente.', 'warning');
+        logout();
+        throw new Error('Sessão expirada ou não autorizada.');
+      }
+
+      if (response.status === 403) {
+        showToast('Acesso negado: você não tem permissão para realizar esta ação.', 'error');
+        throw new Error('Acesso negado: perfil sem permissão para esta operação.');
+      }
+
       const statusMessages = {
         400: 'Dados inválidos',
         401: 'Não autorizado',
@@ -147,12 +165,45 @@ export function getAlunoById(id) {
   return request(`/Aluno/${id}`);
 }
 
+export function criarAluno(data) {
+  return request('/Aluno', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deletarAluno(id) {
+  return request(`/Aluno/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 // --- Autores ---
 export function getAutores({ pageNumber = 1, pageSize = 100 } = {}) {
   const params = new URLSearchParams();
   params.set('PageNumber', pageNumber);
   params.set('PageSize', pageSize);
   return request(`/Autor?${params.toString()}`);
+}
+
+export function criarAutor(data) {
+  return request('/Autor', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function atualizarAutor(id, data) {
+  return request(`/Autor/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deletarAutor(id) {
+  return request(`/Autor/${id}`, {
+    method: 'DELETE',
+  });
 }
 
 // --- Relatórios ---
@@ -181,4 +232,47 @@ export function criarReserva(data) {
 
 export function getFilaReserva(livroId) {
   return request(`/Reservas/fila/${livroId}`);
+}
+
+export function getReservasGestao() {
+  return request('/Reservas');
+}
+
+export function cancelarReserva(id) {
+  return request(`/Reservas/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// --- Autenticação & Perfil ---
+export function loginApi(email, senha) {
+  return request('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: email.trim(), senha }),
+  });
+}
+
+export function getMe() {
+  return request('/auth/me');
+}
+
+// --- Auditoria (ADMIN Only) ---
+export function getAuditoria({ pageNumber = 1, pageSize = 10 } = {}) {
+  const params = new URLSearchParams();
+  params.set('pageNumber', pageNumber);
+  params.set('pageSize', pageSize);
+  return request(`/Auditoria?${params.toString()}`);
+}
+
+// --- Área do Aluno (ALUNO Only) ---
+export function getMeusEmprestimos() {
+  return request('/Emprestimos/meus');
+}
+
+export function getMinhasReservas() {
+  return request('/Reservas/minhas');
+}
+
+export function getMeuPerfil() {
+  return request('/Aluno/perfil');
 }

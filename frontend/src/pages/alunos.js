@@ -2,18 +2,18 @@
 // Alunos Page - CRUD
 // ========================================
 
-import { getAlunos } from '../api.js';
+import { getAlunos, criarAluno, deletarAluno } from '../api.js';
+import { isAdmin, canManageAcervo } from '../auth.js';
 import { renderTable, renderLoading } from '../components/table.js';
 import { openModal, showConfirm } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
-
-const API_BASE = '/api';
 
 let currentPage = 1;
 const PAGE_SIZE = 10;
 
 export async function renderAlunos() {
   const content = document.getElementById('page-content');
+  const canManage = canManageAcervo();
 
   content.innerHTML = `
     <div class="page-header">
@@ -22,10 +22,12 @@ export async function renderAlunos() {
         <p class="page-subtitle">Gerencie os alunos cadastrados</p>
       </div>
       <div class="page-header__actions">
-        <button class="btn btn-primary" id="btn-novo-aluno">
-          <span class="material-icons-round">add</span>
-          Novo Aluno
-        </button>
+        ${canManage ? `
+          <button class="btn btn-primary" id="btn-novo-aluno">
+            <span class="material-icons-round">add</span>
+            Novo Aluno
+          </button>
+        ` : ''}
       </div>
     </div>
 
@@ -36,7 +38,9 @@ export async function renderAlunos() {
     </div>
   `;
 
-  document.getElementById('btn-novo-aluno').addEventListener('click', () => openAlunoForm());
+  if (canManage) {
+    document.getElementById('btn-novo-aluno')?.addEventListener('click', () => openAlunoForm());
+  }
 
   await loadAlunos();
 
@@ -58,6 +62,7 @@ async function loadAlunos() {
     });
 
     const items = result.items || [];
+    const isUserAdmin = isAdmin();
 
     renderTable(container, {
       columns: [
@@ -74,9 +79,11 @@ async function loadAlunos() {
             <button class="btn btn-icon btn-secondary" data-view="${row.id}" title="Ver detalhes">
               <span class="material-icons-round">visibility</span>
             </button>
-            <button class="btn btn-icon btn-danger" data-delete="${row.id}" title="Excluir">
-              <span class="material-icons-round">delete</span>
-            </button>
+            ${isUserAdmin ? `
+              <button class="btn btn-icon btn-danger" data-delete="${row.id}" title="Excluir Aluno (Admin)">
+                <span class="material-icons-round">delete</span>
+              </button>
+            ` : ''}
           </div>
         `},
       ],
@@ -105,34 +112,32 @@ async function loadAlunos() {
       });
     });
 
-    // Delete handler
-    container.querySelectorAll('[data-delete]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const aluno = items.find(a => a.id === btn.dataset.delete);
-        if (!aluno) return;
+    // Delete handler (only active for Admin)
+    if (isUserAdmin) {
+      container.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const aluno = items.find(a => a.id === btn.dataset.delete);
+          if (!aluno) return;
 
-        const confirmed = await showConfirm({
-          title: 'Excluir Aluno',
-          message: `Tem certeza que deseja excluir "${aluno.nome}"? Esta ação não pode ser desfeita.`,
-          confirmText: 'Excluir',
-          type: 'danger',
-        });
+          const confirmed = await showConfirm({
+            title: 'Excluir Aluno',
+            message: `Tem certeza que deseja excluir o aluno "${aluno.nome}"? Esta ação é restrita a administradores e não pode ser desfeita.`,
+            confirmText: 'Excluir',
+            type: 'danger',
+          });
 
-        if (confirmed) {
-          try {
-            const res = await fetch(`${API_BASE}/Aluno/${aluno.id}`, { method: 'DELETE' });
-            if (!res.ok) {
-              const err = await res.text();
-              throw new Error(err || `Erro ${res.status}`);
+          if (confirmed) {
+            try {
+              await deletarAluno(aluno.id);
+              showToast('Aluno excluído com sucesso!', 'success');
+              loadAlunos();
+            } catch (err) {
+              showToast('Erro ao excluir: ' + err.message, 'error');
             }
-            showToast('Aluno excluído com sucesso!', 'success');
-            loadAlunos();
-          } catch (err) {
-            showToast('Erro ao excluir: ' + err.message, 'error');
           }
-        }
+        });
       });
-    });
+    }
   } catch (err) {
     container.innerHTML = `
       <div class="empty-state">
@@ -255,17 +260,7 @@ function openAlunoForm() {
     saveBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Salvando...';
 
     try {
-      const res = await fetch(`${API_BASE}/Aluno`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, matricula, email }),
-      });
-
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err || `Erro ${res.status}`);
-      }
-
+      await criarAluno({ nome, matricula, email });
       showToast('Aluno cadastrado com sucesso!', 'success');
       document.getElementById('active-modal')?.remove();
       loadAlunos();

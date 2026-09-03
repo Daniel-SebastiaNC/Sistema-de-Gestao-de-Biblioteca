@@ -381,6 +381,16 @@ a {
   width: 100%;
 }
 
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-sm .material-icons-round {
+  font-size: 16px;
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
